@@ -1,0 +1,40 @@
+{%extends 'base.html.twig'%}
+
+{% block title %}Quiz{% endblock %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        form { display: inline-block; text-align: left; }
+        button { margin-top: 10px; padding: 10px; background-color: blue; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+<h1>Quiz</h1>
+{% if score is not null %}
+    <h2>Votre score : {{ score }}/{{ questions|length }}</h2>
+{% endif %}
+
+<form method="POST">
+    {% for index, question in questions %}
+        <p><strong>{{ question.question }}</strong></p>
+        {% for option in question.options %}
+            <label>
+                <input type="radio" name="question{{ index }}" value="{{ option }}">
+                {{ option }}
+            </label><br>
+        {% endfor %}
+    {% endfor %}
+    <button type="submit">Soumettre</button>
+</form>
+</body>
+</html>
+
+{% endblock %}

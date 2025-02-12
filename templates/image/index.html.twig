@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Image Interactive{% endblock %}
+
+{% block content %}
+    <h1>Cliquez sur les cercles pour voir le nom des appareils</h1>
+
+    <div class="image-container">
+        <img src="{{ asset('images/poste_source.jpg') }}" usemap="#image-map" id="interactive-image">
+
+        <map name="image-map">
+            <area shape="circle" coords="210,330,110" href="#" data-tooltip="Transformateur HTB/HTA">
+            <area shape="circle" coords="635,60,50" href="#" data-tooltip="Jeu de barres HTB RTE">
+            <area shape="circle" coords="520,220,40" href="#" data-tooltip="Sélécteur d'aiguillage">
+        </map>
+
+        <canvas id="canvas-overlay"></canvas>
+
+        <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <style>
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip {
+            display: none;
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none; /* Empêche d'interférer avec les clics */
+        }
+    </style>
+
+    <script src="{{ asset('js/image-interactive.js') }}"></script>
+{% endblock %}
