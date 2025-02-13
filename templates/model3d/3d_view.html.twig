@@ -1,0 +1,154 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Visualisation 3D{% endblock %}
+
+{% block content %}
+    <div id="3d-container"></div>
+
+    <!-- ✅ Bulles de texte -->
+    <div id="bubble1" class="bubble">Bulle 1</div>
+    <div id="bubble2" class="bubble">Bulle 2</div>
+    <div id="bubble3" class="bubble">Bulle 3</div>
+
+    <style>
+        #3d-container {
+            position: relative; /* ✅ Assure-toi que le conteneur est bien référencé */
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1; /* ✅ Met le canvas en arrière-plan */
+        }
+
+        .bubble {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 5px 10px;
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+            border: 2px solid red; /* ✅ Pour repérer les bulles */
+            color: black;
+            display: block;
+            transform: translate(-50%, -50%);
+            z-index: 2; /* ✅ Met les bulles au premier plan */
+        }
+
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.136/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.136/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.136/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 1);
+            document.getElementById('3d-container').appendChild(renderer.domElement);
+
+            const light = new THREE.DirectionalLight(0xffffff, 2);
+            light.position.set(10, 10, 10);
+            scene.add(light);
+
+            const ambientLight = new THREE.AmbientLight(0x404040, 3);
+            scene.add(ambientLight);
+
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.screenSpacePanning = false;
+            controls.minDistance = 1;
+            controls.maxDistance = 100;
+            controls.target.set(0, 0, 0);
+            controls.update();
+
+            // ✅ Récupérer les bulles HTML et leur position initiale
+            const bubbles = [
+                { element: document.getElementById("bubble1"), position: new THREE.Vector3(0, 5, 0) },
+                { element: document.getElementById("bubble2"), position: new THREE.Vector3(2, 2, 2) },
+                { element: document.getElementById("bubble3"), position: new THREE.Vector3(1, 1, 1) }
+            ];
+
+            const loader = new THREE.GLTFLoader();
+            loader.load('/models/model.glb', function (gltf) {
+                const model = gltf.scene;
+                scene.add(model);
+                model.scale.set(10, 10, 10);
+                model.position.set(0, 0, 0);
+
+                // ✅ Ajuster la caméra automatiquement
+                const box = new THREE.Box3().setFromObject(model);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+
+                camera.position.set(center.x, center.y, size.z * 2);
+                camera.lookAt(center);
+
+                // ✅ Attacher les bulles à des parties spécifiques du modèle
+                bubbles.forEach((bubble, index) => {
+                    if (model.children.length > index) {
+                        bubble.object = model.children[index];
+                    } else {
+                        bubble.object = model; // Attache la bulle au modèle entier si pas de sous-objet
+                    }
+                    bubble.element.style.display = "block";
+                });
+
+            }, undefined, function (error) {
+                console.error('Erreur de chargement du modèle', error);
+            });
+
+            // ✅ Mise à jour des bulles en fonction de la position du modèle
+            function updateBubbles() {
+                bubbles.forEach((bubble) => {
+                    if (bubble.object) {
+                        const vector = bubble.object.position.clone();
+                        vector.project(camera);
+
+                        let x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+                        let y = (1 - (vector.y * 0.5 + 0.5)) * window.innerHeight;
+
+                        // ✅ Empêcher les bulles de disparaître si elles sortent de l'écran
+                        if (x < 0 || x > window.innerWidth || y < 0 || y > window.innerHeight) {
+                            bubble.element.style.display = "none";
+                        } else {
+                            bubble.element.style.display = "block";
+                        }
+
+                        bubble.element.style.transform = `translate(${x}px, ${y}px)`;
+                    }
+                });
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                updateBubbles(); // ✅ Mise à jour des bulles dynamiquement
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // ✅ Mettre à jour les bulles lors du déplacement de la caméra
+            controls.addEventListener('change', updateBubbles);
+
+            // ✅ Mettre à jour les bulles lors du redimensionnement de l'écran
+            window.addEventListener("resize", () => {
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                updateBubbles();
+            });
+        });
+
+    </script>
+{% endblock %}
