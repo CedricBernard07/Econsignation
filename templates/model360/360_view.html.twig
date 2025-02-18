@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Visualisation 360°{% endblock %}
+
+{% block content %}
+
+        <script src="{{ asset('js/pannellum.js') }}"></script>
+        <link rel="stylesheet" href="{{ asset('css/pannellum.css') }}">
+
+    <body>
+    <div id="panorama" style="width: 100%; height: 800px;"></div>
+
+    <script>
+        pannellum.viewer('panorama', {
+            "type": "equirectangular",
+            "panorama": "models/model.jpg",
+            "autoLoad": true
+        });
+    </script>
+    </body>
+
+{% endblock %}

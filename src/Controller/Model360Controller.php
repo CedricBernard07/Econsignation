@@ -6,11 +6,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class Model3DController extends AbstractController
+class Model360Controller extends AbstractController
 {
-    #[Route('/3d-view', name: '3d_view')]
+    #[Route('/360-view', name: '360_view')]
     public function index(): Response
     {
-        return $this->render('model3d/3d_view.html.twig');
+        return $this->render('model360/360_view.html.twig');
     }
 }
