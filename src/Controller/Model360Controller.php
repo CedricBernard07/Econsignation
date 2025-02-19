@@ -11,6 +11,6 @@ class Model360Controller extends AbstractController
     #[Route('/360-view', name: '360_view')]
     public function index(): Response
     {
-        return $this->render('model360/360_view.html.twig');
+        return $this->render('model360/index.html.twig');
     }
 }
