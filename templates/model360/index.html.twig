@@ -12,6 +12,7 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            // variables pour les deplacements
             let isDragging = false;
             let startMouseX, startMouseY;
             let currentYaw = 30;
@@ -27,6 +28,7 @@
                 "hfov": 100,
                 "hotSpots": [
                     {
+                        // le texte
                         "pitch": 12.5,
                         "yaw": 0,
                         "type": "custom",
@@ -34,6 +36,7 @@
                         "createTooltipArgs": "Transformateur \nHTB => HTA"
                     },
                     {
+                        // la barre mobile
                         "pitch": currentPitch,
                         "yaw": currentYaw,
                         "type": "custom",
@@ -44,13 +47,13 @@
                 ]
             });
 
-            /* ✅ Fonction pour afficher du texte */
+            /* Fonction pour afficher le texte */
             function hotspotText(hotSpotDiv, args) {
                 hotSpotDiv.classList.add('hotspot-text');
                 hotSpotDiv.innerHTML = args.replace(/\n/g, "<br>");
             }
 
-            /* ✅ Fonction pour créer la barre mobile */
+            /* Fonction pour créer la barre mobile */
             function createSliderBar(hotSpotDiv) {
                 hotSpotDiv.classList.add('slider-bar');
 
@@ -87,7 +90,7 @@
                 });
             }
 
-            /* ✅ Fonction qui met à jour la position du hotspot */
+            /*  Fonction qui met à jour la position du hotspot */
             function updateHotSpot(yaw, pitch) {
                 let hotSpots = viewer.getConfig().hotSpots;
                 for (let i = 0; i < hotSpots.length; i++) {
@@ -100,7 +103,7 @@
                 viewer.setPitch(pitch);
             }
 
-            /* ✅ Suivre la navigation Panellum */
+            /* Suivre la navigation Panellum */
             viewer.on('animate', function () {
                 updateHotSpot(currentYaw, currentPitch);
             });
@@ -109,7 +112,7 @@
     </script>
 
     <style>
-        /* ✅ Barre mobile */
+        /* Barre mobile */
         .slider-bar {
             width: 5px;
             height: 220px;
@@ -118,20 +121,20 @@
             border-radius: 2px;
         }
 
-        /* ✅ Style du hotspot texte */
+        /*  Style du hotspot texte */
         .hotspot-text {
             background: none;
             padding: 0;
             font-size: 18px;
             font-weight: bold;
             color: white; /* ✅ Change la couleur si besoin */
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8); /* ✅ Ajoute un effet d’ombre pour la lisibilité */
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8); /* Ajoute un effet d’ombre pour la lisibilité */
             white-space: nowrap; /* 🔹 Empêche le texte de passer à la ligne (sauf ceux imposés avec \n */
         }
 
     </style>
 
-
+{#-------------------------------------------------------#}
 {#  SECONDAIRE  empêcher le clic droit mene sur Pannellum#}
     <script>
         document.addEventListener("DOMContentLoaded", function () {
