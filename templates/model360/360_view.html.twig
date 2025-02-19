@@ -12,31 +12,113 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            var viewer = pannellum.viewer('panorama', {
+            let isDragging = false;
+            let startMouseX, startMouseY;
+            let currentYaw = 30;
+            let currentPitch = 0;
+
+
+            let viewer = pannellum.viewer('panorama', {
                 "type": "equirectangular",
-                "panorama": "models/model.jpg",
+                "panorama": "{{ asset('models/model.jpg') }}",
                 "autoLoad": true,
+                "yaw": 0,
+                "pitch": 0,
+                "hfov": 100,
                 "hotSpots": [
                     {
-                        "pitch":12.5,  // 🔹 Position verticale
-                        "yaw": 0,    // 🔹 Position horizontale
+                        "pitch": 12.5,
+                        "yaw": 0,
                         "type": "custom",
-                        "createTooltipFunc": hotspotText,  // 🔹 Appelle une fonction personnalisée
+                        "createTooltipFunc": hotspotText,
                         "createTooltipArgs": "Transformateur \nHTB => HTA"
+                    },
+                    {
+                        "pitch": currentPitch,
+                        "yaw": currentYaw,
+                        "type": "custom",
+                        "cssClass": "slider-bar",
+                        "createTooltipFunc": createSliderBar,
+                        "createTooltipArgs": {}
                     }
                 ]
             });
-        });
 
-        /* ✅ Fonction pour afficher du texte personnalisé */
-        function hotspotText(hotSpotDiv, args) {
-            hotSpotDiv.classList.add('hotspot-text');
-            hotSpotDiv.innerHTML = args.replace(/\n/g, "<br>");  // 🔹 Ajoute le texte et Convertit les "\n" en "<br>"
-        }
+            /* ✅ Fonction pour afficher du texte */
+            function hotspotText(hotSpotDiv, args) {
+                hotSpotDiv.classList.add('hotspot-text');
+                hotSpotDiv.innerHTML = args.replace(/\n/g, "<br>");
+            }
+
+            /* ✅ Fonction pour créer la barre mobile */
+            function createSliderBar(hotSpotDiv) {
+                hotSpotDiv.classList.add('slider-bar');
+
+                hotSpotDiv.addEventListener('mousedown', function (event) {
+                    isDragging = true;
+                    startMouseX = event.clientX;
+                    startMouseY = event.clientY;
+                    event.stopPropagation();
+                });
+
+                document.addEventListener('mousemove', function (event) {
+                    if (!isDragging) return;
+
+                    let deltaX = event.clientX - startMouseX;
+                    let deltaY = event.clientY - startMouseY;
+
+                    let yawDelta = deltaX * 0.1;
+                    let pitchDelta = -deltaY * 0.1;
+
+                    currentYaw += yawDelta;
+                    currentPitch += pitchDelta;
+
+                    currentPitch = Math.max(-90, Math.min(90, currentPitch));
+                    currentYaw = ((currentYaw + 180) % 360) - 180;
+
+                    startMouseX = event.clientX;
+                    startMouseY = event.clientY;
+
+                    updateHotSpot(currentYaw, currentPitch);
+                });
+
+                document.addEventListener('mouseup', function () {
+                    isDragging = false;
+                });
+            }
+
+            /* ✅ Fonction qui met à jour la position du hotspot */
+            function updateHotSpot(yaw, pitch) {
+                let hotSpots = viewer.getConfig().hotSpots;
+                for (let i = 0; i < hotSpots.length; i++) {
+                    if (hotSpots[i].cssClass === "slider-bar") {
+                        hotSpots[i].yaw = yaw;
+                        hotSpots[i].pitch = pitch;
+                    }
+                }
+                viewer.setYaw(yaw);
+                viewer.setPitch(pitch);
+            }
+
+            /* ✅ Suivre la navigation Panellum */
+            viewer.on('animate', function () {
+                updateHotSpot(currentYaw, currentPitch);
+            });
+
+        });
     </script>
 
     <style>
-        /* ✅ Style du texte */
+        /* ✅ Barre mobile */
+        .slider-bar {
+            width: 5px;
+            height: 220px;
+            background: red;
+            cursor: grab;
+            border-radius: 2px;
+        }
+
+        /* ✅ Style du hotspot texte */
         .hotspot-text {
             background: none;
             padding: 0;
@@ -46,7 +128,52 @@
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8); /* ✅ Ajoute un effet d’ombre pour la lisibilité */
             white-space: nowrap; /* 🔹 Empêche le texte de passer à la ligne (sauf ceux imposés avec \n */
         }
+
     </style>
+
+
+{#  SECONDAIRE  empêcher le clic droit mene sur Pannellum#}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let panoramaElement = document.getElementById("panorama");
+
+            // Bloquer complètement le menu contextuel Panellum
+            document.addEventListener("contextmenu", function (event) {
+                if (event.target.closest("#panorama")) {
+                    event.preventDefault();
+                }
+            });
+
+            // Vérifier et supprimer le lien contextuel Panellum après son chargement
+            function removePannellumContextMenu() {
+                let pannellumMenu = document.querySelector(".pnlm-about-msg");
+                if (pannellumMenu) {
+                    pannellumMenu.remove(); // 🔹 Supprime l'élément affichant le lien Panellum
+                }
+            }
+
+            // Attendre le chargement de Panellum et supprimer le menu
+            setTimeout(removePannellumContextMenu, 500); // 🔹 Délai pour s'assurer que Panellum est bien chargé
+
+            // Surveiller les changements de DOM pour détecter si Panellum réaffiche son menu
+            let observer = new MutationObserver(removePannellumContextMenu);
+            observer.observe(document.body, { childList: true, subtree: true });
+
+            // Désactiver tous les événements liés au menu contextuel
+            panoramaElement.addEventListener("mousedown", function (event) {
+                if (event.button === 2) { // Clic droit
+                    event.preventDefault();
+                }
+            });
+
+            panoramaElement.addEventListener("mouseup", function (event) {
+                if (event.button === 2) {
+                    event.preventDefault();
+                }
+            });
+        });
+    </script>
+
 
     </body>
 
