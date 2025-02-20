@@ -41,6 +41,17 @@ class ParcoursController extends AbstractController
         ]);
     }
 
+    #[Route('/page3', name: 'app_page3')]
+    public function page3()
+    {
+        $score = $this->session->get('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0]);
+
+        return $this->render('parcours/page3.html.twig', [
+            'score' => $score,
+        ]);
+    }
+
+
 
 
     //update score toutes étapes

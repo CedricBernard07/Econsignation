@@ -12,13 +12,10 @@
 
     <div id="response-container">
         <span id="message-box"></span>
+        <a href="{{ path('app_page3') }}" id="next-button" class="next-button" style="display: none;">Passer à l'étape suivante</a>
     </div>
 
     <div id="panorama" style="width: 100%; height: 800px;"></div>
-
-    <div id="next-button-container" style="text-align: center; display: none;">
-        <a href="{{ path('app_parcours') }}" class="next-button">Passer à l'étape suivante</a>
-    </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -66,7 +63,7 @@
 
             function showMessage(text, color) {
                 let messageBox = document.getElementById("message-box");
-                let nextButton = document.getElementById("next-button-container");
+                let nextButton = document.getElementById("next-button");
 
                 messageBox.textContent = text;
                 messageBox.style.color = color;

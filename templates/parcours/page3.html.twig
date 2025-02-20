@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Parcours Page 3{% endblock %}
+
+{% block content %}
+
+    <script src="{{ asset('js/pannellum.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('css/pannellum.css') }}">
+
+    <body>
+    <h1>Placer le piquet de MALT, dans le bonne ordre</h1>
+
+    <div id="response-container">
+        <span id="message-box"></span>
+    </div>
+
+    <div id="panorama" style="width: 100%; height: 800px;"></div>
+
+    <div id="next-button-container" style="text-align: center; display: none;">
+        <a href="{{ path('app_parcours') }}" class="next-button">Terminer</a>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let viewer = pannellum.viewer('panorama', {
+                "type": "equirectangular",
+                "panorama": "{{ asset('models/model.jpg') }}",
+                "autoLoad": true,
+                "yaw": 0,
+                "pitch": 0,
+                "hfov": 100,
+                "hotSpots": [
+                    {
+                        "pitch": -5,  // Ajustez la hauteur
+                        "yaw": 15,    // Déplacez à gauche ou à droite
+                        "type": "custom",
+                        "cssClass": "hotspot-img",
+                        "createTooltipFunc": function(hotSpotDiv, args) {
+                            hotSpotDiv.classList.add("hotspot-img");
+                            hotSpotDiv.style.backgroundImage = "url('{{ asset('images/EPI/equipement.png') }}')";
+                            hotSpotDiv.style.width = "80px";
+                            hotSpotDiv.style.height = "80px";
+                            hotSpotDiv.addEventListener("click", function () {
+                                showMessage("Correct", "green");
+                                updateEtape3();
+                            });
+                        }
+                    }
+                ]
+            });
+
+            function showMessage(text, color) {
+                let messageBox = document.getElementById("message-box");
+                let nextButton = document.getElementById("next-button-container");
+
+                messageBox.textContent = text;
+                messageBox.style.color = color;
+                nextButton.style.display = "block"; // Afficher le bouton suivant
+            }
+
+            function updateEtape3() {
+                fetch("{{ path('update_score') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({ etape: "etape3" }) // Mise à jour de l'étape 3
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Score mis à jour :", data.score);
+                    })
+                    .catch(error => console.error("Erreur de mise à jour du score :", error));
+            }
+        });
+    </script>
+
+    </body>
+
+    <style>
+        .hotspot-img {
+            width: 80px !important;
+            height: 80px !important;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .hotspot-img:hover {
+            transform: scale(1.1);
+        }
+    </style>
+
+{% endblock %}
