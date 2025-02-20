@@ -10,7 +10,11 @@
     <body>
     <h1>Étape 1 : Cliquer sur le Transformateur</h1>
 
-    <div id="message-box" style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 10px;"></div>
+    <div id="response-container">
+        <span id="message-box"></span>
+        <a href="{{ path('app_page2') }}" id="next-button" class="next-button" style="display: none;">Passer à l'étape suivante</a>
+    </div>
+
     <div id="panorama" style="width: 100%; height: 800px;"></div>
 
     <script>
@@ -23,10 +27,10 @@
                 "yaw": 1.5,  // Ajuste la position horizontale du hotspot
                 "pitch": 3,  // Ajuste la position verticale du hotspot
                 "hfov": 100, // Angle de vue initial (fixé)
-                "mouseZoom": false, // Désactive le zoom avec la molette
-                "disableZoom": true, // Empêche toute action de zoom
-                "showControls": false, // Supprime tous les boutons de l'interface
-                "keyboardZoom": false, // Empêche le zoom au clavier
+                "mouseZoom": false,
+                "disableZoom": true,
+                "showControls": false,
+                "keyboardZoom": false,
                 "hotSpots": [
                     {
                         "pitch": 6.5,
@@ -35,15 +39,15 @@
                         "cssClass": "hotspot-rect",
                         "createTooltipFunc": function(hotSpotDiv, args) {
                             hotSpotDiv.classList.add("hotspot-rect");
-                            hotSpotDiv.style.pointerEvents = "auto"; // Permet le clic
+                            hotSpotDiv.style.pointerEvents = "auto";
                             hotSpotDiv.addEventListener("click", function(event) {
                                 if (!isDragging) {
                                     event.stopPropagation();
                                     showMessage("Correct", "green");
-
-                                    // Mise à jour du score via AJAX
                                     updateScore('etape1');
                                 }
+                                // Appliquer la correction : bordure verte
+                                hotSpotDiv.style.border = "5px solid green"
                             });
                         }
                     }
@@ -52,8 +56,11 @@
 
             function showMessage(text, color) {
                 let messageBox = document.getElementById("message-box");
+                let nextButton = document.getElementById("next-button");
+
                 messageBox.textContent = text;
                 messageBox.style.color = color;
+                nextButton.style.display = "inline-block"; // Afficher le bouton
             }
 
             function updateScore(etape) {
@@ -72,18 +79,20 @@
                     .catch(error => console.error("Erreur de mise à jour du score :", error));
             }
 
-            // Gère le clic en dehors du hotspot, mais uniquement si la souris n'a pas bougé
             document.getElementById("panorama").addEventListener("mousedown", function () {
-                isDragging = false; // On réinitialise l'état
+                isDragging = false;
             });
 
             document.getElementById("panorama").addEventListener("mousemove", function () {
-                isDragging = true; // La souris a bougé, donc ce n'est pas un clic simple
+                isDragging = true;
             });
 
-            document.getElementById("panorama").addEventListener("mouseup", function (event) {
-                if (!isDragging) { // Seulement si la souris n'a pas bougé
+            document.getElementById("panorama").addEventListener("mouseup", function () {
+                if (!isDragging) {
                     showMessage("Incorrect", "red");
+                    // Appliquer la correction : bordure rouge
+                    let hotSpotDiv = document.querySelector(".hotspot-rect");
+                    hotSpotDiv.style.border = "5px solid red"
                 }
             });
         });
@@ -94,10 +103,10 @@
             position: absolute;
             width: 150px;
             height: 150px;
-            background: transparent; /* Hotspot totalement invisible */
-            border: none;
-            pointer-events: auto; /* Permet le clic */
-            cursor: grab; /* Curseur main ouverte */
+            background: transparent;
+            border: 3px solid transparent; /* Bordure invisible au depart */
+            pointer-events: auto;
+            cursor: grab;
         }
     </style>
 

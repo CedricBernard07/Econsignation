@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Parcours Page 2{% endblock %}
+
+{% block content %}
+
+    <script src="{{ asset('js/pannellum.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('css/pannellum.css') }}">
+
+    <body>
+    <h1>Étape 2 : Selectionner les EPI adaptés pour la manipulation</h1>
+    <div id="panorama" style="width: 100%; height: 800px;"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // variables pour les deplacements
+            let isDragging = false;
+            let startMouseX, startMouseY;
+            let currentYaw = 30;
+            let currentPitch = 0;
+
+
+            let viewer = pannellum.viewer('panorama', {
+                "type": "equirectangular",
+                "panorama": "{{ asset('models/model.jpg') }}",
+                "autoLoad": true,
+                "yaw": 0,
+                "pitch": 0,
+            });
+
+
+
+
+
+        });
+    </script>
+
+
+    {#-------------------------------------------------------#}
+    {#  SECONDAIRE  empêcher le clic droit mene sur Pannellum#}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let panoramaElement = document.getElementById("panorama");
+
+            // Bloquer complètement le menu contextuel Panellum
+            document.addEventListener("contextmenu", function (event) {
+                if (event.target.closest("#panorama")) {
+                    event.preventDefault();
+                }
+            });
+
+            // Vérifier et supprimer le lien contextuel Panellum après son chargement
+            function removePannellumContextMenu() {
+                let pannellumMenu = document.querySelector(".pnlm-about-msg");
+                if (pannellumMenu) {
+                    pannellumMenu.remove(); // 🔹 Supprime l'élément affichant le lien Panellum
+                }
+            }
+
+            // Attendre le chargement de Panellum et supprimer le menu
+            setTimeout(removePannellumContextMenu, 500); // 🔹 Délai pour s'assurer que Panellum est bien chargé
+
+            // Surveiller les changements de DOM pour détecter si Panellum réaffiche son menu
+            let observer = new MutationObserver(removePannellumContextMenu);
+            observer.observe(document.body, { childList: true, subtree: true });
+
+            // Désactiver tous les événements liés au menu contextuel
+            panoramaElement.addEventListener("mousedown", function (event) {
+                if (event.button === 2) { // Clic droit
+                    event.preventDefault();
+                }
+            });
+
+            panoramaElement.addEventListener("mouseup", function (event) {
+                if (event.button === 2) {
+                    event.preventDefault();
+                }
+            });
+        });
+    </script>
+
+
+    </body>
+
+{% endblock %}

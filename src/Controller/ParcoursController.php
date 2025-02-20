@@ -17,6 +17,7 @@ class ParcoursController extends AbstractController
         $this->session = $requestStack->getSession();
     }
 
+    //charge la page 1
     #[Route('/parcours', name: 'app_parcours')]
     public function index()
     {
@@ -29,6 +30,13 @@ class ParcoursController extends AbstractController
             'score' => $this->session->get('score'),
         ]);
     }
+
+    #[Route('/parcours/page2', name: 'app_page2')]
+    public function page2()
+    {
+        return $this->render('parcours/page2.html.twig');
+    }
+
 
     #[Route('/parcours/update-score', name: 'update_score', methods: ['POST'])]
     public function updateScore(Request $request): JsonResponse

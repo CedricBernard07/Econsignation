@@ -1,0 +1,30 @@
+/* Styles généraux */
+
+/*message et bouton next*/
+#response-container {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Espace entre le message et le bouton */
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+#message-box {  /*correct ou incorrect*/
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.next-button {   /*bouton etape suivante*/
+    padding: 10px 20px;
+    font-size: 18px;
+    color: white;
+    background-color: #2852a7;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+/*couleur du bouton etape suivante quand on le survole*/
+.next-button:hover {
+    background-color: #217c88;
+}
+
