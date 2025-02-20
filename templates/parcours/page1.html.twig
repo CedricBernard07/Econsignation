@@ -1,0 +1,106 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Parcours{% endblock %}
+
+{% block content %}
+
+    <script src="{{ asset('js/pannellum.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('css/pannellum.css') }}">
+
+    <body>
+    <h1>Étape 1 : Cliquer sur le Transformateur</h1>
+
+    <div id="message-box" style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 10px;"></div>
+    <div id="panorama" style="width: 100%; height: 800px;"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let isDragging = false;
+            let viewer = pannellum.viewer('panorama', {
+                "type": "equirectangular",
+                "panorama": "{{ asset('models/model.jpg') }}",
+                "autoLoad": true,
+                "yaw": 1.5,  // Ajuste la position horizontale du hotspot
+                "pitch": 3,  // Ajuste la position verticale du hotspot
+                "hfov": 100, // Angle de vue initial (fixé)
+                "mouseZoom": false, // Désactive le zoom avec la molette
+                "disableZoom": true, // Empêche toute action de zoom
+                "showControls": false, // Supprime tous les boutons de l'interface
+                "keyboardZoom": false, // Empêche le zoom au clavier
+                "hotSpots": [
+                    {
+                        "pitch": 6.5,
+                        "yaw": 4.5,
+                        "type": "custom",
+                        "cssClass": "hotspot-rect",
+                        "createTooltipFunc": function(hotSpotDiv, args) {
+                            hotSpotDiv.classList.add("hotspot-rect");
+                            hotSpotDiv.style.pointerEvents = "auto"; // Permet le clic
+                            hotSpotDiv.addEventListener("click", function(event) {
+                                if (!isDragging) {
+                                    event.stopPropagation();
+                                    showMessage("Correct", "green");
+
+                                    // Mise à jour du score via AJAX
+                                    updateScore('etape1');
+                                }
+                            });
+                        }
+                    }
+                ]
+            });
+
+            function showMessage(text, color) {
+                let messageBox = document.getElementById("message-box");
+                messageBox.textContent = text;
+                messageBox.style.color = color;
+            }
+
+            function updateScore(etape) {
+                fetch("{{ path('update_score') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({ etape: etape })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Score mis à jour :", data.score);
+                    })
+                    .catch(error => console.error("Erreur de mise à jour du score :", error));
+            }
+
+            // Gère le clic en dehors du hotspot, mais uniquement si la souris n'a pas bougé
+            document.getElementById("panorama").addEventListener("mousedown", function () {
+                isDragging = false; // On réinitialise l'état
+            });
+
+            document.getElementById("panorama").addEventListener("mousemove", function () {
+                isDragging = true; // La souris a bougé, donc ce n'est pas un clic simple
+            });
+
+            document.getElementById("panorama").addEventListener("mouseup", function (event) {
+                if (!isDragging) { // Seulement si la souris n'a pas bougé
+                    showMessage("Incorrect", "red");
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .hotspot-rect {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: transparent; /* Hotspot totalement invisible */
+            border: none;
+            pointer-events: auto; /* Permet le clic */
+            cursor: grab; /* Curseur main ouverte */
+        }
+    </style>
+
+    </body>
+
+{% endblock %}
