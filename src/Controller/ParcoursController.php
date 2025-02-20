@@ -41,7 +41,7 @@ class ParcoursController extends AbstractController
         ]);
     }
 
-    #[Route('/page3', name: 'app_page3')]
+    #[Route('/parcours/page3', name: 'app_page3')]
     public function page3()
     {
         $score = $this->session->get('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0]);
