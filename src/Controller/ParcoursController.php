@@ -21,23 +21,29 @@ class ParcoursController extends AbstractController
     #[Route('/parcours', name: 'app_parcours')]
     public function index()
     {
-        // Initialisation du tableau de score en session
-        if (!$this->session->has('score')) {
-            $this->session->set('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0, 'etape4' => 0]);
-        }
+        // Réinitialisation du tableau de score à chaque chargement de la page 1
+        $this->session->set('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0]);
 
         return $this->render('parcours/page1.html.twig', [
             'score' => $this->session->get('score'),
         ]);
     }
 
+
     #[Route('/parcours/page2', name: 'app_page2')]
     public function page2()
     {
-        return $this->render('parcours/page2.html.twig');
+        // Récupérer la session
+        $score = $this->session->get('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0]);
+
+        return $this->render('parcours/page2.html.twig', [
+            'score' => $score,
+        ]);
     }
 
 
+
+    //update score toutes étapes
     #[Route('/parcours/update-score', name: 'update_score', methods: ['POST'])]
     public function updateScore(Request $request): JsonResponse
     {
@@ -52,6 +58,8 @@ class ParcoursController extends AbstractController
 
         return new JsonResponse(['score' => $score]);
     }
+
+
 }
 
 

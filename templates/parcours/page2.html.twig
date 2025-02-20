@@ -8,33 +8,89 @@
     <link rel="stylesheet" href="{{ asset('css/pannellum.css') }}">
 
     <body>
-    <h1>Étape 2 : Selectionner les EPI adaptés pour la manipulation</h1>
+    <h1>Étape 2 : Sélectionner les EPI adaptés pour la manipulation</h1>
+
+    <div id="response-container">
+        <span id="message-box"></span>
+    </div>
+
     <div id="panorama" style="width: 100%; height: 800px;"></div>
+
+    <div id="next-button-container" style="text-align: center; display: none;">
+        <a href="{{ path('app_parcours') }}" class="next-button">Passer à l'étape suivante</a>
+    </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // variables pour les deplacements
-            let isDragging = false;
-            let startMouseX, startMouseY;
-            let currentYaw = 30;
-            let currentPitch = 0;
-
-
             let viewer = pannellum.viewer('panorama', {
                 "type": "equirectangular",
                 "panorama": "{{ asset('models/model.jpg') }}",
                 "autoLoad": true,
                 "yaw": 0,
                 "pitch": 0,
+                "hfov": 100,
+                "hotSpots": [
+                    {
+                        "pitch": -10,  // Augmentez ou diminuez pour ajuster la hauteur
+                        "yaw": -20,    // Déplacez à gauche ou à droite
+                        "type": "custom",
+                        "cssClass": "hotspot-img",
+                        "createTooltipFunc": function(hotSpotDiv, args) {
+                            hotSpotDiv.classList.add("hotspot-img");
+                            hotSpotDiv.style.backgroundImage = "url('{{ asset('images/EPI/correct.png') }}')";
+                            hotSpotDiv.style.width = "80px";
+                            hotSpotDiv.style.height = "80px";
+                            hotSpotDiv.addEventListener("click", function () {
+                                showMessage("Correct", "green");
+                                updateEtape2("correct");
+                            });
+                        }
+                    },
+                    {
+                        "pitch": -10,
+                        "yaw": 20,
+                        "type": "custom",
+                        "cssClass": "hotspot-img",
+                        "createTooltipFunc": function(hotSpotDiv, args) {
+                            hotSpotDiv.classList.add("hotspot-img");
+                            hotSpotDiv.style.backgroundImage = "url('{{ asset('images/EPI/incorrect.png') }}')";
+                            hotSpotDiv.style.width = "80px";
+                            hotSpotDiv.style.height = "80px";
+                            hotSpotDiv.addEventListener("click", function () {
+                                showMessage("Incorrect", "red");
+                            });
+                        }
+                    }
+                ]
             });
 
+            function showMessage(text, color) {
+                let messageBox = document.getElementById("message-box");
+                let nextButton = document.getElementById("next-button-container");
 
+                messageBox.textContent = text;
+                messageBox.style.color = color;
+                nextButton.style.display = "block"; // Afficher le bouton suivant
+            }
 
-
+            function updateEtape2() {
+                fetch("{{ path('update_score') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({ etape: "etape2" }) // On envoie bien "etape2"
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Score mis à jour :", data.score);
+                    })
+                    .catch(error => console.error("Erreur de mise à jour du score :", error));
+            }
 
         });
     </script>
-
 
     {#-------------------------------------------------------#}
     {#  SECONDAIRE  empêcher le clic droit mene sur Pannellum#}
@@ -79,7 +135,24 @@
         });
     </script>
 
-
     </body>
+
+    <style>
+        .hotspot-img {
+            width: 200px !important; /* Taille ajustée pour éviter le recadrage */
+            height: 200px !important;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .hotspot-img:hover {
+            transform: scale(1.1); /* Effet de zoom au survol */
+        }
+
+
+    </style>
 
 {% endblock %}
