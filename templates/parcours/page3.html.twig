@@ -8,17 +8,9 @@
     <link rel="stylesheet" href="{{ asset('css/pannellum.css') }}">
 
     <body>
-    <h1>Placer le piquet de MALT, dans le bon ordre</h1>
-
-    <div id="response-container">
-        <span id="message-box"></span>
-    </div>
+    <h1>Étape 3 : Cliquer, dans le bon ordre, sur les 2 endroits où placer les extremités du piquet de MALT</h1>
 
     <div id="panorama" style="width: 100%; height: 800px;"></div>
-
-    <div id="next-button-container" style="text-align: center; display: none;">
-        <a href="{{ path('app_parcours') }}" class="next-button">Terminer</a>
-    </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -29,68 +21,69 @@
                 "yaw": 0,
                 "pitch": 0,
                 "hfov": 100,
+                "mouseZoom": false,
+                "disableZoom": true,
+                "showControls": false,
+                "keyboardZoom": false,
                 "hotSpots": [
+                    // 6 cercles bleus vides
+                    { "pitch": 2, "yaw": 13, "type": "custom", "cssClass": "hotspot-circle" },  //bon point en bas
+                    { "pitch": 25, "yaw": 14, "type": "custom", "cssClass": "hotspot-circle" },  //bon point en haut
+                    { "pitch": 5, "yaw": 0, "type": "custom", "cssClass": "hotspot-circle" },
+                    { "pitch": 3, "yaw": -5, "type": "custom", "cssClass": "hotspot-circle" },  //le plus a gauche
+                    { "pitch": 0, "yaw": 20, "type": "custom", "cssClass": "hotspot-circle" },
+                    { "pitch": 5, "yaw": 30, "type": "custom", "cssClass": "hotspot-circle" },
+
+                    // Image fixe de la perche
                     {
-                        "pitch": -5,  // Ajustez la hauteur
-                        "yaw": 15,    // Déplacez à gauche ou à droite
+                        "pitch": 10,
+                        "yaw": -15,
                         "type": "custom",
-                        "cssClass": "hotspot-img",
-                        "createTooltipFunc": function(hotSpotDiv, args) {
-                            hotSpotDiv.classList.add("hotspot-img");
-                            hotSpotDiv.style.backgroundImage = "url('{{ asset('images/EPI/equipement.png') }}')";
-                            hotSpotDiv.style.width = "80px";
-                            hotSpotDiv.style.height = "80px";
-                            hotSpotDiv.addEventListener("click", function () {
-                                showMessage("Correct", "green");
-                                updateEtape3();
-                            });
-                        }
+                        "cssClass": "static-image",
+                        "createTooltipFunc": createStaticImage,
+                        "createTooltipArgs": {}
                     }
                 ]
             });
 
-            function showMessage(text, color) {
-                let messageBox = document.getElementById("message-box");
-                let nextButton = document.getElementById("next-button-container");
+            /* Fonction pour créer l'image fixe */
+            function createStaticImage(hotSpotDiv) {
+                hotSpotDiv.classList.add('static-container');
 
-                messageBox.textContent = text;
-                messageBox.style.color = color;
-                nextButton.style.display = "block"; // Afficher le bouton suivant
+                let image = document.createElement("img");
+                image.src = "{{ asset('images/piquetMALT.png') }}";
+                image.classList.add("piquet-image");
+                hotSpotDiv.appendChild(image);
             }
 
-            function updateEtape3() {
-                fetch("{{ path('update_score') }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    body: JSON.stringify({ etape: "etape3" }) // Mise à jour de l'étape 3
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log("Score mis à jour :", data.score);
-                    })
-                    .catch(error => console.error("Erreur de mise à jour du score :", error));
-            }
         });
     </script>
 
     </body>
 
     <style>
-        .hotspot-img {
-            width: 80px !important;
-            height: 80px !important;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            cursor: pointer;
-            transition: transform 0.2s;
+        /* Cercles bleus vides */
+        .hotspot-circle {
+            width: 40px;
+            height: 40px;
+            border: 3px solid blue;
+            background-color: transparent;
+            border-radius: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            pointer-events: auto;
         }
 
-        .hotspot-img:hover {
-            transform: scale(1.1);
+        /* Conteneur de l’image fixe */
+        .static-container {
+            position: absolute;
+            transform-origin: center;
+        }
+
+        /* Image fixe plus grande */
+        .piquet-image {
+            width: 250px; /* Augmentation de la taille */
+            height: auto;
         }
     </style>
 
