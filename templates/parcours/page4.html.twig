@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Parcours Page 4{% endblock %}
+
+{% block content %}
+
+    <script src="{{ asset('js/pannellum.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('css/pannellum.css') }}">
+
+    <body>
+    <h1>Étape 4 : Nouvelle étape du parcours</h1>
+
+    <div id="response-container">
+        <span id="message-box"></span>
+    </div>
+
+    <div id="panorama" style="width: 100%; height: 800px;"></div>
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let viewer = pannellum.viewer('panorama', {
+                "type": "equirectangular",
+                "panorama": "{{ asset('models/model.jpg') }}",
+                "autoLoad": true,
+                "yaw": 0,
+                "pitch": 0,
+                "hfov": 100,
+                "mouseZoom": false,
+                "disableZoom": true,
+                "showControls": false,
+                "keyboardZoom": false
+            });
+        });
+    </script>
+
+    </body>
+
+
+
+{% endblock %}

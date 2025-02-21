@@ -22,7 +22,7 @@ class ParcoursController extends AbstractController
     public function index()
     {
         // Réinitialisation du tableau de score à chaque chargement de la page 1
-        $this->session->set('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0]);
+        $this->session->set('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0, 'etape4' => 0]);
 
         return $this->render('parcours/page1.html.twig', [
             'score' => $this->session->get('score'),
@@ -34,7 +34,7 @@ class ParcoursController extends AbstractController
     public function page2()
     {
         // Récupérer la session
-        $score = $this->session->get('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0]);
+        $score = $this->session->get('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0, 'etape4' => 0]);
 
         return $this->render('parcours/page2.html.twig', [
             'score' => $score,
@@ -44,9 +44,19 @@ class ParcoursController extends AbstractController
     #[Route('/parcours/page3', name: 'app_page3')]
     public function page3()
     {
-        $score = $this->session->get('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0]);
+        $score = $this->session->get('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0, 'etape4' => 0]);
 
         return $this->render('parcours/page3.html.twig', [
+            'score' => $score,
+        ]);
+    }
+
+    #[Route('/parcours/page4', name: 'app_page4')]
+    public function page4()
+    {
+        $score = $this->session->get('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0, 'etape4' => 0]);
+
+        return $this->render('parcours/page4.html.twig', [
             'score' => $score,
         ]);
     }
@@ -58,7 +68,7 @@ class ParcoursController extends AbstractController
     #[Route('/parcours/update-score', name: 'update_score', methods: ['POST'])]
     public function updateScore(Request $request): JsonResponse
     {
-        $score = $this->session->get('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0]);
+        $score = $this->session->get('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0, 'etape4' => 0]);
 
         // Récupération des données envoyées via AJAX
         $data = json_decode($request->getContent(), true);

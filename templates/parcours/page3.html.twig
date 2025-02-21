@@ -8,12 +8,22 @@
     <link rel="stylesheet" href="{{ asset('css/pannellum.css') }}">
 
     <body>
-    <h1>Étape 3 : Cliquer, dans le bon ordre, sur les 2 endroits où placer les extremités du piquet de MALT</h1>
+    <h1>Étape 3 : Cliquer, dans le bon ordre, sur les 2 endroits où placer les extrémités du piquet de MALT</h1>
 
-    <div id="panorama" style="width: 100%; height: 800px;"></div>
+    <div id="response-container">
+        <span id="message-box"></span>
+        <img id="response-image" src="{{ asset('images/imageMALT.jpg') }}" class="overlay-image" style="display: none;">
+        <a href="{{ path('app_page4') }}" id="next-button" class="next-button" style="display: none;">Passer à l'étape suivante</a>
+    </div>
+
+    <div id="panorama-container">
+        <div id="panorama" style="width: 100%; height: 800px;"></div>
+    </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            let clickedCircles = [];
+
             let viewer = pannellum.viewer('panorama', {
                 "type": "equirectangular",
                 "panorama": "{{ asset('models/model.jpg') }}",
@@ -26,15 +36,13 @@
                 "showControls": false,
                 "keyboardZoom": false,
                 "hotSpots": [
-                    // 6 cercles bleus vides
-                    { "pitch": 2, "yaw": 13, "type": "custom", "cssClass": "hotspot-circle" },  //bon point en bas
-                    { "pitch": 25, "yaw": 14, "type": "custom", "cssClass": "hotspot-circle" },  //bon point en haut
-                    { "pitch": 5, "yaw": 0, "type": "custom", "cssClass": "hotspot-circle" },
-                    { "pitch": 3, "yaw": -5, "type": "custom", "cssClass": "hotspot-circle" },  //le plus a gauche
-                    { "pitch": 0, "yaw": 20, "type": "custom", "cssClass": "hotspot-circle" },
-                    { "pitch": 5, "yaw": 30, "type": "custom", "cssClass": "hotspot-circle" },
+                    { "pitch": 2, "yaw": 13, "type": "custom", "cssClass": "hotspot-circle", "id": "circle1", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "circle1" }},
+                    { "pitch": 25, "yaw": 14, "type": "custom", "cssClass": "hotspot-circle", "id": "circle2", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "circle2" }},
+                    { "pitch": 5, "yaw": 0, "type": "custom", "cssClass": "hotspot-circle", "id": "circle3", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "circle3" }},
+                    { "pitch": 3, "yaw": -5, "type": "custom", "cssClass": "hotspot-circle", "id": "circle4", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "circle4" }},
+                    { "pitch": 0, "yaw": 20, "type": "custom", "cssClass": "hotspot-circle", "id": "circle5", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "circle5" }},
+                    { "pitch": 5, "yaw": 30, "type": "custom", "cssClass": "hotspot-circle", "id": "circle6", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "circle6" }},
 
-                    // Image fixe de la perche
                     {
                         "pitch": 10,
                         "yaw": -15,
@@ -46,7 +54,70 @@
                 ]
             });
 
-            /* Fonction pour créer l'image fixe */
+            /* Fonction pour gérer les clics sur les cercles */
+            function createHotspot(hotSpotDiv, args) {
+                hotSpotDiv.addEventListener("click", function () {
+                    let circleId = args.id;
+                    hotSpotDiv.setAttribute("id", circleId);
+                    console.log("Clic détecté sur :", circleId);
+
+                    if (clickedCircles.length < 2) {
+                        clickedCircles.push(circleId);
+                        hotSpotDiv.classList.add("clicked"); // Remplit le cercle
+                    }
+
+                    if (clickedCircles.length === 2) {
+                        checkSelection();
+                    }
+                });
+            }
+
+            /* Vérifie si l'utilisateur a cliqué sur le bon ordre */
+            function checkSelection() {
+                console.log("Cercles cliqués :", clickedCircles);
+                if (clickedCircles[0] === "circle1" && clickedCircles[1] === "circle2") {
+                    showMessage("Correct", "green");
+                    updateEtape3();
+                } else {
+                    showMessage("Incorrect", "red");
+                }
+            }
+
+            /* Fonction pour afficher le message + l'image + le bouton */
+            function showMessage(text, color) {
+                let messageBox = document.getElementById("message-box");
+                let responseImage = document.getElementById("response-image");
+                let nextButton = document.getElementById("next-button");
+
+                messageBox.textContent = text;
+                messageBox.style.color = color;
+                messageBox.style.fontSize = "24px";
+                messageBox.style.fontWeight = "bold";
+                messageBox.style.marginTop = "10px";
+                messageBox.style.display = "block";
+
+                responseImage.style.display = "block"; // Afficher l'image
+                nextButton.style.display = "inline-block"; // Afficher le bouton
+            }
+
+            /* Mise à jour du score si l'utilisateur a bien cliqué */
+            function updateEtape3() {
+                fetch("{{ path('update_score') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({ etape: "etape3" })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Score mis à jour :", data.score);
+                    })
+                    .catch(error => console.error("Erreur de mise à jour du score :", error));
+            }
+
+            /* Fonction pour afficher l'image fixe */
             function createStaticImage(hotSpotDiv) {
                 hotSpotDiv.classList.add('static-container');
 
@@ -72,6 +143,23 @@
             position: absolute;
             transform: translate(-50%, -50%);
             pointer-events: auto;
+            cursor: pointer;
+        }
+
+        /* Style pour les cercles cliqués */
+        .hotspot-circle.clicked {
+            background-color: blue !important; /* Remplit le cercle */
+        }
+
+        /* Superposition de l'image sur le panorama */
+        .overlay-image {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            z-index: 10;
+            display: none;
         }
 
         /* Conteneur de l’image fixe */
@@ -85,6 +173,50 @@
             width: 250px; /* Augmentation de la taille */
             height: auto;
         }
+
     </style>
+
+    {#-------------------------------------------------------#}
+    {#  SECONDAIRE  empêcher le clic droit mene sur Pannellum#}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let panoramaElement = document.getElementById("panorama");
+
+            // Bloquer complètement le menu contextuel Panellum
+            document.addEventListener("contextmenu", function (event) {
+                if (event.target.closest("#panorama")) {
+                    event.preventDefault();
+                }
+            });
+
+            // Vérifier et supprimer le lien contextuel Panellum après son chargement
+            function removePannellumContextMenu() {
+                let pannellumMenu = document.querySelector(".pnlm-about-msg");
+                if (pannellumMenu) {
+                    pannellumMenu.remove(); // 🔹 Supprime l'élément affichant le lien Panellum
+                }
+            }
+
+            // Attendre le chargement de Panellum et supprimer le menu
+            setTimeout(removePannellumContextMenu, 500); // 🔹 Délai pour s'assurer que Panellum est bien chargé
+
+            // Surveiller les changements de DOM pour détecter si Panellum réaffiche son menu
+            let observer = new MutationObserver(removePannellumContextMenu);
+            observer.observe(document.body, { childList: true, subtree: true });
+
+            // Désactiver tous les événements liés au menu contextuel
+            panoramaElement.addEventListener("mousedown", function (event) {
+                if (event.button === 2) { // Clic droit
+                    event.preventDefault();
+                }
+            });
+
+            panoramaElement.addEventListener("mouseup", function (event) {
+                if (event.button === 2) {
+                    event.preventDefault();
+                }
+            });
+        });
+    </script>
 
 {% endblock %}
