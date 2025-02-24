@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Visualisation 360°{% endblock %}
+
+{% block content %}
+    <script src="{{ asset('js/pannellum.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('css/pannellum.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+
+    <body>
+    <div id="panorama" style="width: 100%; height: 800px;"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let viewer = pannellum.viewer('panorama', {
+                "type": "equirectangular",
+                "panorama": "{{ asset('models/Entree.png') }}",
+                "autoLoad": true,
+                "yaw": 0,
+                "pitch": 0,
+                "hfov": 150,
+                "hotSpots": [
+                    {   //vers le coffret presence
+                        "pitch": 0,
+                        "yaw": -10,
+                        "type": "custom",
+                        "cssClass": "hotspot-circle",
+                        "createTooltipFunc": function(hotSpotDiv) {
+                            hotSpotDiv.classList.add('hotspot-circle');
+                            hotSpotDiv.addEventListener('click', function() {
+                                window.location.href = "{{ path('app_navigation_coffret_presence') }}";
+                            });
+                        },
+                    },
+                    {   //vers le transformateur
+                        "pitch": 3,
+                        "yaw": -75,
+                        "type": "custom",
+                        "cssClass": "hotspot-circle",
+                        "createTooltipFunc": function (hotSpotDiv) {
+                            hotSpotDiv.classList.add('hotspot-circle');
+                            hotSpotDiv.addEventListener('click', function () {
+                                window.location.href = "{{ path('app_navigation_transformateur') }}";
+                            });
+                        }
+                    },
+                    {
+                        //vers la ligne HTB
+                        "pitch": 6,
+                        "yaw": -44,
+                        "type": "custom",
+                        "cssClass": "hotspot-circle",
+                        "createTooltipFunc": function (hotSpotDiv) {
+                            hotSpotDiv.classList.add('hotspot-circle');
+                            hotSpotDiv.addEventListener('click', function () {
+                                window.location.href = "{{ path('app_navigation_cable_HTB') }}";
+                            });
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
+    </body>
+{% endblock %}

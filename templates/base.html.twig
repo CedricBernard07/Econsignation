@@ -14,6 +14,9 @@
     </style>
 </head>
 <body>
+    {#  SECONDAIRE  empêcher le clic droit mene sur Pannellum#}
+    <script src="{{ asset('js/panellum-protection.js') }}"></script>
+
 
 <nav>
     <a href="{{ path('home') }}">Accueil</a>
@@ -21,6 +24,7 @@
     <a href="{{ path('image') }}">Image</a>
     <a href="{{ path('360_view') }}">Modèle 360</a>
     <a href="{{ path('app_parcours') }}">Parcours</a>
+    <a href="{{ path('app_navigation_entree') }}">Navigation</a>
 </nav>
 
 <div>

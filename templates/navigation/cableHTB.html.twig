@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Visualisation 360°{% endblock %}
+
+{% block content %}
+    <script src="{{ asset('js/pannellum.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('css/pannellum.css') }}">
+
+    <body>
+    <div id="panorama" style="width: 100%; height: 800px;"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let viewer = pannellum.viewer('panorama', {
+                "type": "equirectangular",
+                "panorama": "{{ asset('models/CableHTB.jpg') }}",
+                "autoLoad": true,
+                "yaw": 0,
+                "pitch": 0,
+                "hfov": 150
+            });
+        });
+    </script>
+    </body>
+
+
+{% endblock %}
