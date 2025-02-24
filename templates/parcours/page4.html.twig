@@ -8,15 +8,23 @@
     <link rel="stylesheet" href="{{ asset('css/pannellum.css') }}">
 
     <body>
-    <h1>Étape 4 : Nouvelle étape du parcours</h1>
+    <h1>Étape 4 : Culture générale sur les postes sources</h1>
 
     <div id="response-container">
         <span id="message-box"></span>
+        <a href="{{ path('app_bilan') }}" id="next-button" class="next-button" style="display: none;">Voir le bilan</a>
     </div>
 
     <div id="panorama" style="width: 100%; height: 800px;"></div>
 
-
+    <!-- Question en surcouche -->
+    <div id="question-box" class="overlay-box">
+        <h2>Quelle est la fonction principale d'un poste source ?</h2>
+        <button class="answer-button" data-answer="wrong">A) Produire de l'électricité</button>
+        <button class="answer-button" data-answer="wrong">B) Transporter l'électricité aux consommateurs</button>
+        <button class="answer-button" data-answer="correct">C) Abaisser la tension pour la distribution locale</button>
+        <button class="answer-button" data-answer="wrong">D) Stocker l'électricité pour une utilisation ultérieure</button>
+    </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -32,11 +40,162 @@
                 "showControls": false,
                 "keyboardZoom": false
             });
+
+            let buttons = document.querySelectorAll(".answer-button");
+            let nextButton = document.getElementById("next-button");
+
+            buttons.forEach(button => {
+                button.addEventListener("click", function () {
+                    let answer = this.getAttribute("data-answer");
+
+                    // Désactiver tous les boutons après le clic
+                    buttons.forEach(btn => {
+                        btn.disabled = true;
+                        btn.classList.add("disabled-answer");
+                    });
+
+                    // Mettre en surbrillance le bouton cliqué
+                    this.classList.add("selected-answer");
+
+                    // Afficher la bonne réponse en vert
+                    let correctButton = document.querySelector('[data-answer="correct"]');
+                    correctButton.classList.add("correct-answer");
+
+                    if (answer === "correct") {
+                        showMessage("Correct", "green");
+                        updateEtape4();
+                    } else {
+                        showMessage("Incorrect", "red");
+                    }
+
+                    // Afficher le bouton "Voir le bilan"
+                    nextButton.style.display = "inline-block";
+                });
+            })
+
+            /* Fonction pour afficher un message */
+            function showMessage(text, color) {
+                let messageBox = document.getElementById("message-box");
+                messageBox.textContent = text;
+                messageBox.style.color = color;
+                messageBox.style.fontSize = "24px";
+                messageBox.style.fontWeight = "bold";
+                messageBox.style.marginTop = "10px";
+                messageBox.style.display = "block";
+            }
+
+            /* Mise à jour du score */
+            function updateEtape4() {
+                fetch("{{ path('update_score') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({ etape: "etape4" }) // Mise à jour de l'étape 4
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Score mis à jour :", data.score);
+                    })
+                    .catch(error => console.error("Erreur de mise à jour du score :", error));
+            }
         });
     </script>
 
     </body>
 
+    <style>
+        /* Boîte de question en surcouche */
+        .overlay-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: auto;
+            min-height: 200px;
+            background: white;
+            border: 2px solid black;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
 
+        /* Style des boutons de réponse */
+        .answer-button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: lightgray;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .answer-button:hover {
+            background-color: darkgray;
+        }
+
+
+        /* Bouton sélectionné *!*/
+        .selected-answer {
+            background-color: darkgray !important;
+            font-weight: bold;
+        }
+
+        /* Bonne réponse en vert */
+        .correct-answer {
+            background-color: green !important;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+
+    {#-------------------------------------------------------#}
+    {#  SECONDAIRE  empêcher le clic droit mene sur Pannellum#}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let panoramaElement = document.getElementById("panorama");
+
+            // Bloquer complètement le menu contextuel Panellum
+            document.addEventListener("contextmenu", function (event) {
+                if (event.target.closest("#panorama")) {
+                    event.preventDefault();
+                }
+            });
+
+            // Vérifier et supprimer le lien contextuel Panellum après son chargement
+            function removePannellumContextMenu() {
+                let pannellumMenu = document.querySelector(".pnlm-about-msg");
+                if (pannellumMenu) {
+                    pannellumMenu.remove(); // 🔹 Supprime l'élément affichant le lien Panellum
+                }
+            }
+
+            // Attendre le chargement de Panellum et supprimer le menu
+            setTimeout(removePannellumContextMenu, 500); // 🔹 Délai pour s'assurer que Panellum est bien chargé
+
+            // Surveiller les changements de DOM pour détecter si Panellum réaffiche son menu
+            let observer = new MutationObserver(removePannellumContextMenu);
+            observer.observe(document.body, { childList: true, subtree: true });
+
+            // Désactiver tous les événements liés au menu contextuel
+            panoramaElement.addEventListener("mousedown", function (event) {
+                if (event.button === 2) { // Clic droit
+                    event.preventDefault();
+                }
+            });
+
+            panoramaElement.addEventListener("mouseup", function (event) {
+                if (event.button === 2) {
+                    event.preventDefault();
+                }
+            });
+        });
+    </script>
 
 {% endblock %}

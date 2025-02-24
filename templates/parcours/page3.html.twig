@@ -151,15 +151,18 @@
             background-color: blue !important; /* Remplit le cercle */
         }
 
-        /* Superposition de l'image sur le panorama */
+        /* Superposition de l'image à gauche sur le panorama */
         .overlay-image {
             position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 400px;
-            z-index: 10;
+            top: 300px;    /*Positionnement vertical, augmenter pour décaler vers le bas */
+            left: 30px;  /* Positionnement horizontal, augmenter pour décaler vers la droite */
+            width: 300px;  /* Largeur de l'image */
+            z-index: 100;
             display: none;
+            border: 2px solid black;
+            background-color: white;
+            padding: 5px;
+            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
         }
 
         /* Conteneur de l’image fixe */
@@ -170,7 +173,7 @@
 
         /* Image fixe plus grande */
         .piquet-image {
-            width: 250px; /* Augmentation de la taille */
+            width: 250px;
             height: auto;
         }
 

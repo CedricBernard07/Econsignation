@@ -5,6 +5,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -17,70 +18,96 @@ class ParcoursController extends AbstractController
         $this->session = $requestStack->getSession();
     }
 
-    //charge la page 1
+    /**
+     * Initialise le tableau des scores avec toutes les étapes
+     */
+    private function getDefaultScore(): array
+    {
+        return [
+            'etape1' => 0,
+            'etape2' => 0,
+            'etape3' => 0,
+            'etape4' => 0,
+            // Ajouter d'autres étapes ici et seulement ici
+        ];
+    }
+
+    /**
+     * Page d'accueil du parcours - Réinitialisation du score
+     */
     #[Route('/parcours', name: 'app_parcours')]
-    public function index()
+    public function parcours(): Response
     {
-        // Réinitialisation du tableau de score à chaque chargement de la page 1
-        $this->session->set('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0, 'etape4' => 0]);
-
-        return $this->render('parcours/page1.html.twig', [
-            'score' => $this->session->get('score'),
-        ]);
+        $this->session->set('score', $this->getDefaultScore());
+        return $this->render('parcours/page1.html.twig');
     }
 
-
+    /**
+     * Affichage page 2
+     */
     #[Route('/parcours/page2', name: 'app_page2')]
-    public function page2()
+    public function page2(): Response
     {
-        // Récupérer la session
-        $score = $this->session->get('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0, 'etape4' => 0]);
-
-        return $this->render('parcours/page2.html.twig', [
-            'score' => $score,
-        ]);
+        $score = $this->session->get('score', $this->getDefaultScore());
+        return $this->render('parcours/page2.html.twig', ['score' => $score]);
     }
 
+    /**
+     * Affichage page 3
+     */
     #[Route('/parcours/page3', name: 'app_page3')]
-    public function page3()
+    public function page3(): Response
     {
-        $score = $this->session->get('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0, 'etape4' => 0]);
-
-        return $this->render('parcours/page3.html.twig', [
-            'score' => $score,
-        ]);
+        $score = $this->session->get('score', $this->getDefaultScore());
+        return $this->render('parcours/page3.html.twig', ['score' => $score]);
     }
 
+    /**
+     * Affichage page 4
+     */
     #[Route('/parcours/page4', name: 'app_page4')]
-    public function page4()
+    public function page4(): Response
     {
-        $score = $this->session->get('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0, 'etape4' => 0]);
-
-        return $this->render('parcours/page4.html.twig', [
-            'score' => $score,
-        ]);
+        $score = $this->session->get('score', $this->getDefaultScore());
+        return $this->render('parcours/page4.html.twig', ['score' => $score]);
     }
 
-
-
-
-    //update score toutes étapes
+    /**
+     * Mise à jour du score pour toutes les étapes
+     */
     #[Route('/parcours/update-score', name: 'update_score', methods: ['POST'])]
     public function updateScore(Request $request): JsonResponse
     {
-        $score = $this->session->get('score', ['etape1' => 0, 'etape2' => 0, 'etape3' => 0, 'etape4' => 0]);
-
-        // Récupération des données envoyées via AJAX
+        $score = $this->session->get('score', $this->getDefaultScore());
         $data = json_decode($request->getContent(), true);
-        if (isset($data['etape']) && array_key_exists($data['etape'], $score)) {
-            $score[$data['etape']] = 1;
-            $this->session->set('score', $score);
+
+        if (!isset($data['etape']) || !array_key_exists($data['etape'], $score)) {
+            return new JsonResponse(['error' => 'Étape invalide'], Response::HTTP_BAD_REQUEST);
         }
 
-        return new JsonResponse(['score' => $score]);
+        // Mettre à jour le score
+        $score[$data['etape']] = 1;
+        $this->session->set('score', $score);
+
+        return new JsonResponse(['success' => true, 'score' => $score]);
     }
 
+    /**
+     * Page bilan du parcours
+     */
+    #[Route('/parcours/bilan', name: 'app_bilan')]
+    public function bilan(): Response
+    {
+        return $this->render('parcours/bilan.html.twig');
+    }
 
+    /**
+     * Récupération du score du parcours
+     */
+    #[Route('/parcours/get-score', name: 'get_score', methods: ['GET'])]
+    public function getScore(): JsonResponse
+    {
+        $score = $this->session->get('score', $this->getDefaultScore());
+        return new JsonResponse(['score' => $score]);
+    }
 }
-
-

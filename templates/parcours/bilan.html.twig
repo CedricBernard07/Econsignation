@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Bilan du Parcours{% endblock %}
+
+{% block content %}
+
+    <h1>Bilan du Parcours</h1>
+
+    <!-- Score total -->
+    <h2>Score : <span id="total-score">...</span></h2>
+
+    <!-- Tableau récapitulatif -->
+    <table id="score-table">
+        <thead>
+        <tr>
+            <th>Étape</th>
+            <th>Résultat</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Étape 1</td>
+            <td id="etape1-score">...</td>
+        </tr>
+        <tr>
+            <td>Étape 2</td>
+            <td id="etape2-score">...</td>
+        </tr>
+        <tr>
+            <td>Étape 3</td>
+            <td id="etape3-score">...</td>
+        </tr>
+        <tr>
+            <td>Étape 4</td>
+            <td id="etape4-score">...</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("{{ path('get_score') }}")
+                .then(response => response.json())
+                .then(data => {
+                    let total = 0;
+                    let maxScore = 4;
+
+                    // Mettre à jour les scores individuels et compter le total
+                    function updateScore(etape, elementId) {
+                        let value = data.score[etape] ? "✅" : "❌";
+                        document.getElementById(elementId).textContent = value;
+                        if (data.score[etape]) {
+                            total++;
+                        }
+                    }
+
+                    updateScore("etape1", "etape1-score");
+                    updateScore("etape2", "etape2-score");
+                    updateScore("etape3", "etape3-score");
+                    updateScore("etape4", "etape4-score");
+
+                    // Mettre à jour le score total
+                    document.getElementById("total-score").textContent = `${total}/${maxScore}`;
+                })
+                .catch(error => console.error("Erreur lors de la récupération du score :", error));
+        });
+    </script>
+
+    <style>
+        /* Style du tableau */
+        #score-table {
+            width: 50%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        #score-table th, #score-table td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+
+        #score-table th {
+            background-color: #f0f0f0;
+        }
+
+        /* Score total */
+        #total-score {
+            font-size: 24px;
+            font-weight: bold;
+            color: darkblue;
+        }
+    </style>
+
+{% endblock %}
