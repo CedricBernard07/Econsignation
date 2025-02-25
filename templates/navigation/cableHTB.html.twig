@@ -17,7 +17,46 @@
                 "autoLoad": true,
                 "yaw": 0,
                 "pitch": 0,
-                "hfov": 150
+                "hfov": 150,
+                "hotSpots": [
+                    {   //vers le coffret presence
+                        "pitch": 0,
+                        "yaw": -170,
+                        "type": "custom",
+                        "cssClass": "hotspot-circle",
+                        "createTooltipFunc": function(hotSpotDiv) {
+                            hotSpotDiv.classList.add('hotspot-circle');
+                            hotSpotDiv.addEventListener('click', function() {
+                                window.location.href = "{{ path('app_navigation_coffret_presence') }}";
+                            });
+                        },
+                    },
+                    {   //vers le transformateur
+                        "pitch": 5,
+                        "yaw": -60,
+                        "type": "custom",
+                        "cssClass": "hotspot-circle",
+                        "createTooltipFunc": function (hotSpotDiv) {
+                            hotSpotDiv.classList.add('hotspot-circle');
+                            hotSpotDiv.addEventListener('click', function () {
+                                window.location.href = "{{ path('app_navigation_transformateur') }}";
+                            });
+                        }
+                    },
+                    {#{#}
+                    {#    //vers l'entrée pas activé car pas visible#}
+                    {#    "pitch": 6,#}
+                    {#    "yaw": -44,#}
+                    {#    "type": "custom",#}
+                    {#    "cssClass": "hotspot-circle",#}
+                    {#    "createTooltipFunc": function (hotSpotDiv) {#}
+                    {#        hotSpotDiv.classList.add('hotspot-circle');#}
+                    {#        hotSpotDiv.addEventListener('click', function () {#}
+                    {#            window.location.href = "{{ path('app_navigation_entree') }}";#}
+                    {#        });#}
+                    {#    }#}
+                    {#}#}
+                ]
             });
         });
     </script>

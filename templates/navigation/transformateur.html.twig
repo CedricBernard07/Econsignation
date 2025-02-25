@@ -17,7 +17,46 @@
                 "autoLoad": true,
                 "yaw": 0,
                 "pitch": 0,
-                "hfov": 150
+                "hfov": 150,
+                "hotSpots": [
+                    {   //vers le coffret presence
+                        "pitch": 0,  // hauteur du cercle
+                        "yaw": -130,  //horizontal du cercle
+                        "type": "custom",
+                        "cssClass": "hotspot-circle",
+                        "createTooltipFunc": function(hotSpotDiv) {
+                            hotSpotDiv.classList.add('hotspot-circle');
+                            hotSpotDiv.addEventListener('click', function() {
+                                window.location.href = "{{ path('app_navigation_coffret_presence') }}";
+                            });
+                        },
+                    },
+                    {   //vers l'entrée
+                        "pitch": 3,
+                        "yaw": -75,
+                        "type": "custom",
+                        "cssClass": "hotspot-circle",
+                        "createTooltipFunc": function (hotSpotDiv) {
+                            hotSpotDiv.classList.add('hotspot-circle');
+                            hotSpotDiv.addEventListener('click', function () {
+                                window.location.href = "{{ path('app_navigation_entree') }}";
+                            });
+                        }
+                    },
+                    {
+                        //vers la ligne HTB
+                        "pitch": 0,
+                        "yaw": 150,
+                        "type": "custom",
+                        "cssClass": "hotspot-circle",
+                        "createTooltipFunc": function (hotSpotDiv) {
+                            hotSpotDiv.classList.add('hotspot-circle');
+                            hotSpotDiv.addEventListener('click', function () {
+                                window.location.href = "{{ path('app_navigation_cable_HTB') }}";
+                            });
+                        }
+                    }
+                ]
             });
         });
     </script>

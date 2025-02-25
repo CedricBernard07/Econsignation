@@ -17,7 +17,46 @@
                 "autoLoad": true,
                 "yaw": 0,
                 "pitch": 0,
-                "hfov": 150
+                "hfov": 150,
+                "hotSpots": [
+                    {   //vers le transformateur
+                        "pitch": -7,  // hauteur du cercle
+                        "yaw": -95,   //horizontal du cercle
+                        "type": "custom",
+                        "cssClass": "hotspot-circle",
+                        "createTooltipFunc": function(hotSpotDiv) {
+                            hotSpotDiv.classList.add('hotspot-circle');
+                            hotSpotDiv.addEventListener('click', function() {
+                                window.location.href = "{{ path('app_navigation_transformateur') }}";
+                            });
+                        },
+                    },
+                    {   //vers l'entree
+                        "pitch": 0,
+                        "yaw": 180,
+                        "type": "custom",
+                        "cssClass": "hotspot-circle",
+                        "createTooltipFunc": function (hotSpotDiv) {
+                            hotSpotDiv.classList.add('hotspot-circle');
+                            hotSpotDiv.addEventListener('click', function () {
+                                window.location.href = "{{ path('app_navigation_entree') }}";
+                            });
+                        }
+                    },
+                    {
+                        //vers la ligne HTB
+                        "pitch": -5,
+                        "yaw": -40,
+                        "type": "custom",
+                        "cssClass": "hotspot-circle",
+                        "createTooltipFunc": function (hotSpotDiv) {
+                            hotSpotDiv.classList.add('hotspot-circle');
+                            hotSpotDiv.addEventListener('click', function () {
+                                window.location.href = "{{ path('app_navigation_cable_HTB') }}";
+                            });
+                        }
+                    }
+                ]
             });
         });
     </script>
