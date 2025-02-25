@@ -28,6 +28,7 @@ class ParcoursController extends AbstractController
             'etape2' => 0,
             'etape3' => 0,
             'etape4' => 0,
+            'etape5' => 0,
             // Ajouter d'autres étapes ici et seulement ici
         ];
     }
@@ -70,6 +71,16 @@ class ParcoursController extends AbstractController
     {
         $score = $this->session->get('score', $this->getDefaultScore());
         return $this->render('parcours/page4.html.twig', ['score' => $score]);
+    }
+
+    /**
+     * Affichage page 5
+     */
+    #[Route('/parcours/page5', name: 'app_page5')]
+    public function page5(): Response
+    {
+        $score = $this->session->get('score', $this->getDefaultScore());
+        return $this->render('parcours/page5.html.twig', ['score' => $score]);
     }
 
     /**

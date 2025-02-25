@@ -12,7 +12,7 @@
 
     <div id="response-container">
         <span id="message-box"></span>
-        <a href="{{ path('app_bilan') }}" id="next-button" class="next-button" style="display: none;">Voir le bilan</a>
+        <a href="{{ path('app_page5') }}" id="next-button" class="next-button" style="display: none;">Passer à l'étape suivante</a>
     </div>
 
     <div id="panorama" style="width: 100%; height: 800px;"></div>
@@ -78,7 +78,7 @@
                 let messageBox = document.getElementById("message-box");
                 messageBox.textContent = text;
                 messageBox.style.color = color;
-                messageBox.style.fontSize = "24px";
+                messageBox.style.fontSize = "30px";
                 messageBox.style.fontWeight = "bold";
                 messageBox.style.marginTop = "10px";
                 messageBox.style.display = "block";

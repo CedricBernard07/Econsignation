@@ -1,0 +1,154 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Parcours Page 5{% endblock %}
+
+{% block content %}
+
+    <script src="{{ asset('js/pannellum.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('css/pannellum.css') }}">
+
+    <body>
+    <h1>Étape 5 : Séléctionner le point de vigilance à controler</h1>
+
+    <div id="response-container">
+        <span id="message-box"></span>
+        <img id="response-image" src="{{ asset('images/DJbaché.jpg') }}" class="overlay-image" style="display: none;">
+        <a href="{{ path('app_bilan') }}" id="next-button" class="next-button" style="display: none;">Voir le bilan</a>
+    </div>
+
+    <div id="panorama" style="width: 100%; height: 800px;"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let attemptDone = false; // Bloquer après un essai
+
+            let viewer = pannellum.viewer('panorama', {
+                "type": "equirectangular",
+                "panorama": "{{ asset('models/SalleCC.jpg') }}",
+                "autoLoad": true,
+                "yaw": 0,
+                "pitch": 0,
+                "hfov": 150,
+                "mouseZoom": false,
+                "disableZoom": true,
+                "showControls": false,
+                "keyboardZoom": false,
+                "hotSpots": [
+                    { "pitch": 11, "yaw": -8, "type": "custom", "cssClass": "hotspot-frame", "id": "frame1", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "frame1", correct: true }},
+                    { "pitch": -20, "yaw": -20, "type": "custom", "cssClass": "hotspot-frame", "id": "frame2", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "frame2", correct: false }},
+                    { "pitch": 14, "yaw": 37, "type": "custom", "cssClass": "hotspot-frame", "id": "frame3", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "frame3", correct: false }},
+                    { "pitch": -11, "yaw": 9, "type": "custom", "cssClass": "hotspot-frame", "id": "frame4", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "frame4", correct: false }}
+                ]
+            });
+
+            /* Fonction pour gérer les clics sur les cadres */
+            function createHotspot(hotSpotDiv, args) {
+                hotSpotDiv.setAttribute("id", args.id);
+
+                hotSpotDiv.addEventListener("click", function () {
+                    if (attemptDone) return; // Bloquer après un essai
+
+                    let frameId = args.id;
+
+                    if (args.correct) {
+                        showMessage("Correct", "green");
+                        updateEtape5();
+                        hotSpotDiv.classList.add("correct-frame"); // Bordure verte
+                    } else {
+                        showMessage("Incorrect", "red");
+                        hotSpotDiv.classList.add("incorrect-frame"); // Bordure rouge
+                    }
+
+                    highlightCorrectFrame(); // Afficher la bonne réponse en vert après un clic
+                    attemptDone = true; // Bloquer les clics supplémentaires
+                    document.getElementById("next-button").style.display = "inline-block"; // Afficher le bouton suivant
+                });
+            }
+
+            /* Fonction pour afficher le message */
+            function showMessage(text, color) {
+                let messageBox = document.getElementById("message-box");
+                let responseImage = document.getElementById("response-image");
+
+                messageBox.textContent = text;
+                messageBox.style.color = color;
+                messageBox.style.fontSize = "30px";
+                messageBox.style.fontWeight = "bold";
+                messageBox.style.marginTop = "10px";
+                messageBox.style.display = "block";
+
+                responseImage.style.display = "block"; // Afficher l'image
+            }
+
+            /* Met en vert la bonne réponse après un clic sur n'importe quelle case */
+            function highlightCorrectFrame() {
+                setTimeout(() => { // Petit délai pour s'assurer que l'élément est bien disponible
+                    let correctFrame = document.querySelector('#frame1');
+                    if (correctFrame) {
+                        console.log("Mise en évidence du bon cadre");
+                        correctFrame.classList.add("correct-frame");
+                    } else {
+                        console.error("Le cadre correct n'a pas été trouvé !");
+                    }
+                }, 100);
+            }
+
+            /* Mise à jour du score si la réponse est correcte */
+            function updateEtape5() {
+                fetch("{{ path('update_score') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({ etape: "etape5" }) // Mise à jour de l'étape 5
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Score mis à jour :", data.score);
+                    })
+                    .catch(error => console.error("Erreur de mise à jour du score :", error));
+            }
+        });
+    </script>
+
+    </body>
+
+    <style>
+        /* Style des cadres */
+        .hotspot-frame {
+            width: 100px;
+            height: 100px;
+            border: 3px solid white;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        /* ✅ Bordure verte pour la bonne réponse */
+        .correct-frame {
+            border: 5px solid green !important;
+        }
+
+        /* ❌ Bordure rouge pour les mauvaises réponses */
+        .incorrect-frame {
+            border: 5px solid red !important;
+        }
+
+        /* Superposition de l'image à gauche sur le panorama */
+        .overlay-image {
+            position: absolute;
+            top: 300px;    /*Positionnement vertical, augmenter pour décaler vers le bas */
+            left: 30px;  /* Positionnement horizontal, augmenter pour décaler vers la droite */
+            width: 500px;  /* Largeur de l'image */
+            z-index: 100;
+            display: none;
+            border: 2px solid black;
+            background-color: white;
+            padding: 5px;
+            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+
+{% endblock %}

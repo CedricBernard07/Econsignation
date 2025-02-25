@@ -10,7 +10,7 @@
 }
 
 #message-box {  /*correct ou incorrect*/
-    font-size: 28px;
+    font-size: 30px;
     font-weight: bold;
 }
 
@@ -29,7 +29,7 @@
 }
 
 
-/* Style du hotspot en cercle */
+/* Style du hotspot en cercle POUR NAVIGATION  */
 .hotspot-circle {
     width: 40px;
     height: 40px;

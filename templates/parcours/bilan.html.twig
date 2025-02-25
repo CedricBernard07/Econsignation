@@ -17,23 +17,8 @@
             <th>Résultat</th>
         </tr>
         </thead>
-        <tbody>
-        <tr>
-            <td>Étape 1</td>
-            <td id="etape1-score">...</td>
-        </tr>
-        <tr>
-            <td>Étape 2</td>
-            <td id="etape2-score">...</td>
-        </tr>
-        <tr>
-            <td>Étape 3</td>
-            <td id="etape3-score">...</td>
-        </tr>
-        <tr>
-            <td>Étape 4</td>
-            <td id="etape4-score">...</td>
-        </tr>
+        <tbody id="score-body">
+        <!-- Les lignes des étapes seront générées dynamiquement ici  ie : boucle FOR-->
         </tbody>
     </table>
 
@@ -43,21 +28,28 @@
                 .then(response => response.json())
                 .then(data => {
                     let total = 0;
-                    let maxScore = 4;
+                    let maxScore = Object.keys(data.score).length; // Calculer le nombre total d'étapes
 
-                    // Mettre à jour les scores individuels et compter le total
-                    function updateScore(etape, elementId) {
-                        let value = data.score[etape] ? "✅" : "❌";
-                        document.getElementById(elementId).textContent = value;
+                    let scoreBody = document.getElementById("score-body");
+
+                    // Générer dynamiquement les lignes du tableau pour chaque étape
+                    Object.keys(data.score).forEach((etape, index) => {
+                        let row = document.createElement("tr");
+
+                        let cellEtape = document.createElement("td");
+                        cellEtape.textContent = `Étape ${index + 1}`;
+
+                        let cellResultat = document.createElement("td");
+                        cellResultat.textContent = data.score[etape] ? "✅" : "❌";
+
                         if (data.score[etape]) {
                             total++;
                         }
-                    }
 
-                    updateScore("etape1", "etape1-score");
-                    updateScore("etape2", "etape2-score");
-                    updateScore("etape3", "etape3-score");
-                    updateScore("etape4", "etape4-score");
+                        row.appendChild(cellEtape);
+                        row.appendChild(cellResultat);
+                        scoreBody.appendChild(row);
+                    });
 
                     // Mettre à jour le score total
                     document.getElementById("total-score").textContent = `${total}/${maxScore}`;
