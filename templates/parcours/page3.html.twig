@@ -23,6 +23,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let clickedCircles = [];
+            let attemptDone = false; // Bloquer après un essai
 
             let viewer = pannellum.viewer('panorama', {
                 "type": "equirectangular",
@@ -42,7 +43,6 @@
                     { "pitch": 3, "yaw": -5, "type": "custom", "cssClass": "hotspot-circle", "id": "circle4", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "circle4" }},
                     { "pitch": 0, "yaw": 20, "type": "custom", "cssClass": "hotspot-circle", "id": "circle5", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "circle5" }},
                     { "pitch": 5, "yaw": 30, "type": "custom", "cssClass": "hotspot-circle", "id": "circle6", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "circle6" }},
-
                     {
                         "pitch": 10,
                         "yaw": -15,
@@ -56,25 +56,33 @@
 
             /* Fonction pour gérer les clics sur les cercles */
             function createHotspot(hotSpotDiv, args) {
-                hotSpotDiv.addEventListener("click", function () {
-                    let circleId = args.id;
-                    hotSpotDiv.setAttribute("id", circleId);
-                    console.log("Clic détecté sur :", circleId);
+                hotSpotDiv.setAttribute("id", args.id);
 
-                    if (clickedCircles.length < 2) {
+                // Ajouter un `span` pour afficher les numéros après validation
+                let textSpan = document.createElement("span");
+                textSpan.classList.add("circle-text");
+                hotSpotDiv.appendChild(textSpan);
+
+                hotSpotDiv.addEventListener("click", function () {
+                    if (attemptDone) return; // Bloquer après un essai
+
+                    let circleId = args.id;
+
+                    if (clickedCircles.length < 2 && !clickedCircles.includes(circleId)) {
                         clickedCircles.push(circleId);
-                        hotSpotDiv.classList.add("clicked"); // Remplit le cercle
                     }
 
                     if (clickedCircles.length === 2) {
                         checkSelection();
+                        attemptDone = true; // Bloquer après un essai
                     }
                 });
             }
 
             /* Vérifie si l'utilisateur a cliqué sur le bon ordre */
             function checkSelection() {
-                console.log("Cercles cliqués :", clickedCircles);
+                highlightCorrectCircles(); // Toujours afficher les cercles verts + numéros
+
                 if (clickedCircles[0] === "circle1" && clickedCircles[1] === "circle2") {
                     showMessage("Correct", "green");
                     updateEtape3();
@@ -83,7 +91,7 @@
                 }
             }
 
-            /* Fonction pour afficher le message + l'image + le bouton */
+            /* Fonction pour afficher le message + changer la couleur des cercles */
             function showMessage(text, color) {
                 let messageBox = document.getElementById("message-box");
                 let responseImage = document.getElementById("response-image");
@@ -98,6 +106,21 @@
 
                 responseImage.style.display = "block"; // Afficher l'image
                 nextButton.style.display = "inline-block"; // Afficher le bouton
+            }
+
+            /* ✅ Met en vert les bons cercles et affiche "1" et "2" */
+            function highlightCorrectCircles() {
+                let circle1 = document.querySelector('[id="circle1"]');
+                let circle2 = document.querySelector('[id="circle2"]');
+
+                if (circle1) {
+                    circle1.classList.add("correct-circle");
+                    circle1.querySelector(".circle-text").textContent = "1"; // Ajoute le numéro 1 (pour la correction)
+                }
+                if (circle2) {
+                    circle2.classList.add("correct-circle");
+                    circle2.querySelector(".circle-text").textContent = "2"; // Ajoute le numéro 2 (pour la correction)
+                }
             }
 
             /* Mise à jour du score si l'utilisateur a bien cliqué */
@@ -144,7 +167,31 @@
             transform: translate(-50%, -50%);
             pointer-events: auto;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: black;
         }
+
+        /* ✅ Cercles corrects en vert */
+        .correct-circle {
+            border: 6px solid green !important;
+            background-color: transparent !important;
+        }
+
+        /* ✅ Numéros 1 et 2 affichés et centrés dans les cercles */
+        .circle-text {
+            position: absolute;
+            font-size: 28px;
+            font-weight: bold;
+            color: black;
+            width: 100%;
+            text-align: center;
+        }
+
+
 
         /* Style pour les cercles cliqués */
         .hotspot-circle.clicked {
