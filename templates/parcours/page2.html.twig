@@ -19,6 +19,8 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            let hasClicked = false; // Empêcher plusieurs clics
+
             let viewer = pannellum.viewer('panorama', {
                 "type": "equirectangular",
                 "panorama": "{{ asset('models/model.jpg') }}",
@@ -28,18 +30,22 @@
                 "hfov": 100,
                 "hotSpots": [
                     {
-                        "pitch": -10,  // Augmentez ou diminuez pour ajuster la hauteur
-                        "yaw": -20,    // Déplacez à gauche ou à droite
+                        "pitch": -10,
+                        "yaw": -20,
                         "type": "custom",
                         "cssClass": "hotspot-img",
                         "createTooltipFunc": function(hotSpotDiv, args) {
-                            hotSpotDiv.classList.add("hotspot-img");
+                            hotSpotDiv.classList.add("hotspot-img", "correct-choice");
                             hotSpotDiv.style.backgroundImage = "url('{{ asset('images/EPI/correct.png') }}')";
                             hotSpotDiv.style.width = "80px";
                             hotSpotDiv.style.height = "80px";
                             hotSpotDiv.addEventListener("click", function () {
-                                showMessage("Correct", "green");
-                                updateEtape2("correct");
+                                if (!hasClicked) {
+                                    showMessage("Correct", "green");
+                                    showBorders(); // Afficher les bordures
+                                    updateEtape2("correct");
+                                    hasClicked = true;
+                                }
                             });
                         }
                     },
@@ -49,12 +55,16 @@
                         "type": "custom",
                         "cssClass": "hotspot-img",
                         "createTooltipFunc": function(hotSpotDiv, args) {
-                            hotSpotDiv.classList.add("hotspot-img");
+                            hotSpotDiv.classList.add("hotspot-img", "incorrect-choice");
                             hotSpotDiv.style.backgroundImage = "url('{{ asset('images/EPI/incorrect.png') }}')";
                             hotSpotDiv.style.width = "80px";
                             hotSpotDiv.style.height = "80px";
                             hotSpotDiv.addEventListener("click", function () {
-                                showMessage("Incorrect", "red");
+                                if (!hasClicked) {
+                                    showMessage("Incorrect", "red");
+                                    showBorders(); // Afficher les bordures
+                                    hasClicked = true;
+                                }
                             });
                         }
                     }
@@ -77,7 +87,7 @@
                         "Content-Type": "application/json",
                         "X-Requested-With": "XMLHttpRequest"
                     },
-                    body: JSON.stringify({ etape: "etape2" }) // On envoie bien "etape2"
+                    body: JSON.stringify({ etape: "etape2" })
                 })
                     .then(response => response.json())
                     .then(data => {
@@ -86,8 +96,17 @@
                     .catch(error => console.error("Erreur de mise à jour du score :", error));
             }
 
+            function showBorders() {
+                // Ajouter la bordure verte à l'image correcte
+                document.querySelector(".correct-choice").classList.add("correct-answer");
+
+                // Ajouter la bordure rouge à l'image incorrecte
+                document.querySelector(".incorrect-choice").classList.add("incorrect-answer");
+            }
         });
     </script>
+
+
 
     </body>
 
@@ -105,6 +124,19 @@
         .hotspot-img:hover {
             transform: scale(1.1); /* Effet de zoom au survol */
         }
+
+        /* Bordure verte pour la bonne réponse */
+        .correct-answer {
+            border: 5px solid green !important;
+            border-radius: 10px;
+        }
+
+        /* Bordure rouge pour la mauvaise réponse */
+        .incorrect-answer {
+            border: 5px solid red !important;
+            border-radius: 10px;
+        }
+
 
 
     </style>
