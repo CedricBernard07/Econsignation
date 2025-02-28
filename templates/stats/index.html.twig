@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques des Utilisateurs{% endblock %}
+
+{% block content %}
+    <h1>Statistiques des Utilisateurs sur le Parcours de Formation</h1>
+
+    <table id="statsTable">
+        <thead>
+        <tr>
+            <th onclick="sortTable(0)">NNI 🔽</th>
+            <th onclick="sortTable(1)">Nombre de Tentatives 🔽</th>
+            <th onclick="sortTable(2)">Meilleur Score 🔽</th>
+            <th onclick="sortTable(3)">Score Moyen 🔽</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in utilisateurs %}
+            <tr>
+                <td>{{ user.nni }}</td>
+                <td>{{ user.nombreDeTentatives }}</td>
+                <td>{{ user.meilleurScore }}</td>
+                <td>{{ user.scoreMoyen|number_format(2, '.', ',') }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">Aucun utilisateur trouvé.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        function sortTable(columnIndex) {
+            let table = document.getElementById("statsTable");
+            let rows = Array.from(table.rows).slice(1); // Exclure l'en-tête
+            let sortedRows;
+            let isNumeric = columnIndex !== 0; // Vérifie si c'est une colonne numérique
+
+            sortedRows = rows.sort((rowA, rowB) => {
+                let cellA = rowA.cells[columnIndex].innerText.trim();
+                let cellB = rowB.cells[columnIndex].innerText.trim();
+
+                if (isNumeric) {
+                    return parseFloat(cellB) - parseFloat(cellA); // Tri décroissant
+                } else {
+                    return cellB.localeCompare(cellA); // Tri décroissant pour texte
+                }
+            });
+
+            // Inverser si la colonne était déjà triée dans cet ordre
+            if (table.dataset.sortedColumn == columnIndex) {
+                sortedRows.reverse();
+                table.dataset.sortedColumn = "";
+            } else {
+                table.dataset.sortedColumn = columnIndex;
+            }
+
+            // Réinsérer les lignes triées
+            let tbody = table.querySelector("tbody");
+            tbody.innerHTML = "";
+            sortedRows.forEach(row => tbody.appendChild(row));
+        }
+    </script>
+
+    <style>
+        /* Style du tableau */
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+
+        th:hover {
+            background-color: #dcdcdc;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #e6e6e6;
+        }
+    </style>
+{% endblock %}

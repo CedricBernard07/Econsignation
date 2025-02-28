@@ -18,6 +18,37 @@
     <div id="panorama" style="width: 100%; height: 800px;"></div>
 
     <script>
+        //POP UP NNI
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/session/get-nni')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.nni) { // Aucun NNI en session, on demande un nouveau
+                        let userNNI = prompt("Veuillez entrer votre NNI :");
+
+                        if (userNNI === null || userNNI.trim() === "") {
+                            // Si l'utilisateur annule ou entre une valeur vide, rediriger vers l'accueil
+                            window.location.href = "/";
+                        } else {
+                            fetch(`/session/set-nni/${userNNI}`, { method: 'POST' })
+                                .then(response => response.json())
+                                .then(() => {
+                                    fetch(`/db/check-nni/${userNNI}`)
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            if (!data.exists) {
+                                                fetch(`/db/add-nni/${userNNI}`, { method: 'POST' });
+                                            }
+                                        });
+                                });
+                        }
+                    }
+                })
+                .catch(error => console.error("Erreur de session :", error));
+        });
+
+
+
         document.addEventListener("DOMContentLoaded", function () {
             let isDragging = false;
             let viewer = pannellum.viewer('panorama', {

@@ -24,38 +24,48 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            fetch("{{ path('get_score') }}")
+            fetch('/session/get-nni')
                 .then(response => response.json())
                 .then(data => {
-                    let total = 0;
-                    let maxScore = Object.keys(data.score).length; // Calculer le nombre total d'étapes
+                    if (data.nni) {
+                        let nni = data.nni;
+                        fetch("{{ path('get_score') }}")
+                            .then(response => response.json())
+                            .then(data => {
+                                let total = 0;
+                                let maxScore = Object.keys(data.score).length;
 
-                    let scoreBody = document.getElementById("score-body");
+                                let scoreBody = document.getElementById("score-body");
+                                Object.keys(data.score).forEach((etape, index) => {
+                                    let row = document.createElement("tr");
 
-                    // Générer dynamiquement les lignes du tableau pour chaque étape
-                    Object.keys(data.score).forEach((etape, index) => {
-                        let row = document.createElement("tr");
+                                    let cellEtape = document.createElement("td");
+                                    cellEtape.textContent = `Étape ${index + 1}`;
 
-                        let cellEtape = document.createElement("td");
-                        cellEtape.textContent = `Étape ${index + 1}`;
+                                    let cellResultat = document.createElement("td");
+                                    cellResultat.textContent = data.score[etape] ? "✅" : "❌";
 
-                        let cellResultat = document.createElement("td");
-                        cellResultat.textContent = data.score[etape] ? "✅" : "❌";
+                                    if (data.score[etape]) {
+                                        total++;
+                                    }
 
-                        if (data.score[etape]) {
-                            total++;
-                        }
+                                    row.appendChild(cellEtape);
+                                    row.appendChild(cellResultat);
+                                    scoreBody.appendChild(row);
+                                });
 
-                        row.appendChild(cellEtape);
-                        row.appendChild(cellResultat);
-                        scoreBody.appendChild(row);
-                    });
+                                document.getElementById("total-score").textContent = `${total}/${maxScore}`;
 
-                    // Mettre à jour le score total
-                    document.getElementById("total-score").textContent = `${total}/${maxScore}`;
+                                // Mise à jour du score avec session
+                                fetch(`/db/update-score/${nni}/${total}`, { method: 'POST' });
+                            });
+                    } else {
+                        console.error("NNI introuvable en session !");
+                    }
                 })
-                .catch(error => console.error("Erreur lors de la récupération du score :", error));
+                .catch(error => console.error("Erreur lors de la récupération du NNI :", error));
         });
+
     </script>
 
     <style>
