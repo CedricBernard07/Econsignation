@@ -13,15 +13,15 @@
         document.addEventListener("DOMContentLoaded", function () {
             let viewer = pannellum.viewer('panorama', {
                 "type": "equirectangular",
-                "panorama": "{{ asset('models/CableHTB.jpg') }}",
+                "panorama": "{{ asset('models/ArlodCableHTB.jpg') }}",
                 "autoLoad": true,
-                "yaw": 0,
+                "yaw": 80,
                 "pitch": 0,
                 "hfov": 150,
                 "hotSpots": [
                     {   //vers le coffret presence
                         "pitch": 0,
-                        "yaw": -170,
+                        "yaw": 33,
                         "type": "custom",
                         "cssClass": "hotspot-circle",
                         "createTooltipFunc": function(hotSpotDiv) {
@@ -32,8 +32,8 @@
                         },
                     },
                     {   //vers le transformateur
-                        "pitch": 5,
-                        "yaw": -60,
+                        "pitch": 0,
+                        "yaw": 100,
                         "type": "custom",
                         "cssClass": "hotspot-circle",
                         "createTooltipFunc": function (hotSpotDiv) {
@@ -43,19 +43,19 @@
                             });
                         }
                     },
-                    {#{#}
-                    {#    //vers l'entrée pas activé car pas visible#}
-                    {#    "pitch": 6,#}
-                    {#    "yaw": -44,#}
-                    {#    "type": "custom",#}
-                    {#    "cssClass": "hotspot-circle",#}
-                    {#    "createTooltipFunc": function (hotSpotDiv) {#}
-                    {#        hotSpotDiv.classList.add('hotspot-circle');#}
-                    {#        hotSpotDiv.addEventListener('click', function () {#}
-                    {#            window.location.href = "{{ path('app_navigation_entree') }}";#}
-                    {#        });#}
-                    {#    }#}
-                    {#}#}
+                    {
+                        //vers l'entrée pas activé car pas visible
+                        "pitch": 0,
+                        "yaw": 28,
+                        "type": "custom",
+                        "cssClass": "hotspot-circle",
+                        "createTooltipFunc": function (hotSpotDiv) {
+                            hotSpotDiv.classList.add('hotspot-circle');
+                            hotSpotDiv.addEventListener('click', function () {
+                                window.location.href = "{{ path('app_navigation_entree') }}";
+                            });
+                        }
+                    }
                 ]
             });
         });

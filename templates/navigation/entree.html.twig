@@ -14,15 +14,15 @@
         document.addEventListener("DOMContentLoaded", function () {
             let viewer = pannellum.viewer('panorama', {
                 "type": "equirectangular",
-                "panorama": "{{ asset('models/salle360.jpg') }}",
+                "panorama": "{{ asset('models/ArlodEntree.jpg') }}",
                 "autoLoad": true,
-                "yaw": 0,
-                "pitch": 0,
+                "yaw": -175,
+                "pitch": -8,
                 "hfov": 150,
                 "hotSpots": [
                     {   //vers le coffret presence
-                        "pitch": 0,   // hauteur du cercle
-                        "yaw": -10,   //horizontal du cercle
+                        "pitch": -3,   // hauteur du cercle
+                        "yaw": -168,   //horizontal du cercle
                         "type": "custom",
                         "cssClass": "hotspot-circle",
                         "createTooltipFunc": function(hotSpotDiv) {
@@ -33,8 +33,8 @@
                         },
                     },
                     {   //vers le transformateur
-                        "pitch": 3,
-                        "yaw": -75,
+                        "pitch": 1,
+                        "yaw": -160,
                         "type": "custom",
                         "cssClass": "hotspot-circle",
                         "createTooltipFunc": function (hotSpotDiv) {
@@ -46,8 +46,8 @@
                     },
                     {
                         //vers la ligne HTB
-                        "pitch": 6,
-                        "yaw": -44,
+                        "pitch": 3,
+                        "yaw": -137,
                         "type": "custom",
                         "cssClass": "hotspot-circle",
                         "createTooltipFunc": function (hotSpotDiv) {
