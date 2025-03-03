@@ -40,7 +40,8 @@ class ParcoursController extends AbstractController
     public function parcours(): Response
     {
         $this->session->set('score', $this->getDefaultScore());
-        return $this->render('parcours/page1.html.twig');
+        $tableData = $this->getTableData();
+        return $this->render('parcours/page1.html.twig', ['tableData' => $tableData]);
     }
 
     /**
@@ -50,7 +51,11 @@ class ParcoursController extends AbstractController
     public function page2(): Response
     {
         $score = $this->session->get('score', $this->getDefaultScore());
-        return $this->render('parcours/page2.html.twig', ['score' => $score]);
+        $tableData = $this->getTableData();
+        return $this->render('parcours/page2.html.twig', [
+            'score' => $score,
+            'tableData' => $tableData
+        ]);
     }
 
     /**
@@ -60,7 +65,11 @@ class ParcoursController extends AbstractController
     public function page3(): Response
     {
         $score = $this->session->get('score', $this->getDefaultScore());
-        return $this->render('parcours/page3.html.twig', ['score' => $score]);
+        $tableData = $this->getTableData();
+        return $this->render('parcours/page3.html.twig', [
+            'score' => $score,
+            'tableData' => $tableData
+        ]);
     }
 
     /**
@@ -70,7 +79,11 @@ class ParcoursController extends AbstractController
     public function page4(): Response
     {
         $score = $this->session->get('score', $this->getDefaultScore());
-        return $this->render('parcours/page4.html.twig', ['score' => $score]);
+        $tableData = $this->getTableData();
+        return $this->render('parcours/page4.html.twig', [
+            'score' => $score,
+            'tableData' => $tableData
+        ]);
     }
 
     /**
@@ -80,7 +93,11 @@ class ParcoursController extends AbstractController
     public function page5(): Response
     {
         $score = $this->session->get('score', $this->getDefaultScore());
-        return $this->render('parcours/page5.html.twig', ['score' => $score]);
+        $tableData = $this->getTableData();
+        return $this->render('parcours/page5.html.twig', [
+            'score' => $score,
+            'tableData' => $tableData
+        ]);
     }
 
     /**
@@ -121,4 +138,17 @@ class ParcoursController extends AbstractController
         $score = $this->session->get('score', $this->getDefaultScore());
         return new JsonResponse(['score' => $score]);
     }
+
+    // tableau representant une fiche de consignation
+    private function getTableData(): array
+    {
+        return [
+            ['N°' => 1, 'Emplacement' => 'Transformateur', 'Opération' => 'Identifier', 'Validation' => '✔'],
+            ['N°' => 2, 'Emplacement' => 'Transformateur', 'Opération' => 'Choix des EPI', 'Validation' => '✔'],
+            ['N°' => 3, 'Emplacement' => 'Poste C', 'Opération' => 'Maintenance', 'Validation' => '✖'],
+            ['N°' => 4, 'Emplacement' => 'Poste D', 'Opération' => 'Réparation', 'Validation' => '✖'],
+            ['N°' => 5, 'Emplacement' => 'Poste E', 'Opération' => 'Vérification', 'Validation' => '✖'],
+        ];
+    }
+
 }

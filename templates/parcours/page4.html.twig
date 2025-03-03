@@ -15,7 +15,32 @@
         <a href="{{ path('app_page5') }}" id="next-button" class="next-button" style="display: none;">Passer à l'étape suivante</a>
     </div>
 
-    <div id="panorama" style="width: 100%; height: 800px;"></div>
+    {#    tableau représenatnt la fiche de consignation#}
+    <div class="container">
+        <!-- Tableau des opérations -->
+        <div class="parcours-table-container">
+            <div class="parcours-table-title">Suivi de la consignation</div>
+            <table class="parcours-table">
+                <tr>
+                    <th>N°</th>
+                    <th>Emplacement</th>
+                    <th>Opération</th>
+                    <th>Validation</th>
+                </tr>
+                {% for row in tableData %}
+                    <tr>
+                        <td>{{ row['N°'] }}</td>
+                        <td>{{ row['Emplacement'] }}</td>
+                        <td>{{ row['Opération'] }}</td>
+                        <td class="validation">{{ row['Validation'] }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <!-- Image panoramique -->
+        <div id="panorama"></div>
+    </div>
 
     <!-- Question en surcouche -->
     <div id="question-box" class="overlay-box">

@@ -49,3 +49,91 @@
 
 
 
+/*----------------------------------------------------*/
+/*tableau pour fiche de consignation*/
+
+/* Tableau positionné à gauche */
+.parcours-table-container {
+    position: relative; /* Permet au tableau de conserver sa hauteur naturelle */
+    width: 300px; /* Largeur fixe */
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    margin-left: 5px; /* Espacement à gauche */
+    margin-right: 5px; /* Espacement à droite */
+    overflow: hidden;
+}
+
+/* Style du titre */
+.parcours-table-title {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+    color: #007bff;
+    padding: 5px;
+    background: #e9f2ff;
+    border-radius: 5px;
+    border-bottom: 2px solid #007bff;
+}
+
+/* Style du tableau */
+.parcours-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* En-tête du tableau */
+.parcours-table th {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-size: 13px;
+    border-bottom: 2px solid #0056b3;
+}
+
+/* Cellules du tableau */
+.parcours-table td {
+    padding: 8px;
+    text-align: center;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Alternance de couleur des lignes pour une meilleure lisibilité */
+.parcours-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+
+/* Dernière ligne sans bordure */
+.parcours-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Amélioration des cases de validation */
+.parcours-table td.validation {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Ajuster la taille de l'image panoramique */
+#panorama {
+    flex-grow: 1;
+    height: 800px;
+    width: calc(100vw - 350px); /* La place restante après le tableau */
+}
+
+/* Ajuster le conteneur principal pour qu'il prenne toute la largeur */
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start; /* Aligne le tableau avec le haut de l’image */
+    width: 100vw;
+}
+
+
+/*----------------------------------------------------------------*/

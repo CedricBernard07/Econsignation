@@ -16,8 +16,35 @@
         <a href="{{ path('app_page4') }}" id="next-button" class="next-button" style="display: none;">Passer à l'étape suivante</a>
     </div>
 
-    <div id="panorama-container">
-        <div id="panorama" style="width: 100%; height: 800px;"></div>
+    {#    tableau représenatnt la fiche de consignation#}
+    <div class="container">
+        <!-- Tableau des opérations -->
+        <div class="parcours-table-container">
+            <div class="parcours-table-title">Suivi de la consignation</div>
+            <table class="parcours-table">
+                <tr>
+                    <th>N°</th>
+                    <th>Emplacement</th>
+                    <th>Opération</th>
+                    <th>Validation</th>
+                </tr>
+                {% for row in tableData %}
+                    <tr>
+                        <td>{{ row['N°'] }}</td>
+                        <td>{{ row['Emplacement'] }}</td>
+                        <td>{{ row['Opération'] }}</td>
+                        <td class="validation">{{ row['Validation'] }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <!-- Image panoramique -->
+        <div id="panorama"></div>
+
+        <div id="panorama-container">
+            <div id="panorama" style="width: 100%; height: 800px;"></div>
+        </div>
     </div>
 
     <script>
@@ -199,18 +226,28 @@
         }
 
         /* Superposition de l'image à gauche sur le panorama */
+        /* S'assurer que l'image de correction est bien positionnée au-dessus de l'image panoramique */
         .overlay-image {
             position: absolute;
-            top: 300px;    /*Positionnement vertical, augmenter pour décaler vers le bas */
-            left: 30px;  /* Positionnement horizontal, augmenter pour décaler vers la droite */
-            width: 400px;  /* Largeur de l'image */
-            z-index: 100;
+            top: 50%; /* Centrer verticalement */
+            left: 30%;
+            transform: translate(-50%, -50%); /* Centre parfaitement */
+            width: 400px;  /* Taille ajustable */
+            max-width: 90%; /* Évite que l'image dépasse la largeur de l'écran */
+            z-index: 10; /* S'assurer qu'elle est bien au-dessus du panorama */
             display: none;
             border: 2px solid black;
             background-color: white;
-            padding: 5px;
+            padding: 10px;
             box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
         }
+
+        /* Assurer que le panorama reste bien derrière */
+        #panorama-container {
+            position: relative;
+            z-index: 1; /* Inférieur à l’image de correction */
+        }
+
 
         /* Conteneur de l’image fixe */
         .static-container {
