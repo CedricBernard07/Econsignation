@@ -18,14 +18,14 @@
     padding: 10px 20px;
     font-size: 18px;
     color: white;
-    background-color: #2852a7;
+    background-color: #007BFF;
     text-decoration: none;
     border-radius: 5px;
 }
 
 /*couleur du bouton etape suivante quand on le survole*/
 .next-button:hover {
-    background-color: #217c88;
+    background-color: #28a745;
 }
 
 

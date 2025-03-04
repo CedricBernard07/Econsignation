@@ -55,10 +55,11 @@
     <script>
         //POP UP NNI
         document.addEventListener("DOMContentLoaded", function () {
-            fetch('/session/get-nni')
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.nni) { // Aucun NNI en session, on demande un nouveau
+            // enlever les commentaires pour essayer de recuperer le NNI de la session sans passer par le pop up
+            // fetch('/session/get-nni')
+            //     .then(response => response.json())
+            //     .then(data => {
+            //         if (!data.nni) { // Aucun NNI en session, on demande un nouveau
                         let userNNI = prompt("Veuillez entrer votre NNI :");
 
                         if (userNNI === null || userNNI.trim() === "") {
@@ -77,9 +78,9 @@
                                         });
                                 });
                         }
-                    }
-                })
-                .catch(error => console.error("Erreur de session :", error));
+                //     }
+                // })
+                // .catch(error => console.error("Erreur de session :", error));
         });
 
 
