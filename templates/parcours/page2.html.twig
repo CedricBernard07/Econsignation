@@ -32,7 +32,16 @@
                         <td>{{ row['N°'] }}</td>
                         <td>{{ row['Emplacement'] }}</td>
                         <td>{{ row['Opération'] }}</td>
-                        <td class="validation">{{ row['Validation'] }}</td>
+                        <td class="validation">
+                            {% set etapeKey = 'etape' ~ row['N°'] %} {# Génère "etape1", "etape2", etc. #}
+                            {% if score[etapeKey] is defined %}
+                                {% if score[etapeKey] == 1 %}
+                                    ✅
+                                {% elseif score[etapeKey] == -1 %}
+                                    ❌
+                                {% endif %}
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </table>
@@ -68,7 +77,7 @@
                                 if (!hasClicked) {
                                     showMessage("Correct", "green");
                                     showBorders(); // Afficher les bordures
-                                    updateEtape2("correct");
+                                    updateEtape2(1);
                                     hasClicked = true;
                                 }
                             });
@@ -88,6 +97,7 @@
                                 if (!hasClicked) {
                                     showMessage("Incorrect", "red");
                                     showBorders(); // Afficher les bordures
+                                    updateEtape2(-1);
                                     hasClicked = true;
                                 }
                             });
@@ -103,20 +113,23 @@
                 messageBox.textContent = text;
                 messageBox.style.color = color;
                 nextButton.style.display = "block"; // Afficher le bouton suivant
+
+                reloadTable(); // 🔄 Mettre à jour la colonne Validation après mise à jour du score
             }
 
-            function updateEtape2() {
+            function updateEtape2(value) {
                 fetch("{{ path('update_score') }}", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "X-Requested-With": "XMLHttpRequest"
                     },
-                    body: JSON.stringify({ etape: "etape2" })
+                    body: JSON.stringify({ etape: "etape2", value: value })
                 })
                     .then(response => response.json())
                     .then(data => {
                         console.log("Score mis à jour :", data.score);
+                        reloadTable(); // 🔄 Mettre à jour la colonne Validation après mise à jour du score
                     })
                     .catch(error => console.error("Erreur de mise à jour du score :", error));
             }

@@ -43,9 +43,13 @@
                                     cellEtape.textContent = `Étape ${index + 1}`;
 
                                     let cellResultat = document.createElement("td");
-                                    cellResultat.textContent = data.score[etape] ? "✅" : "❌";
+                                    if (data.score[etape]===1){
+                                        cellResultat.textContent = "✅";
+                                    }else if (data.score[etape]===-1){
+                                        cellResultat.textContent = "❌";
+                                    }
 
-                                    if (data.score[etape]) {
+                                    if (data.score[etape]===1) {
                                         total++;
                                     }
 

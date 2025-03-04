@@ -32,7 +32,16 @@
                         <td>{{ row['N°'] }}</td>
                         <td>{{ row['Emplacement'] }}</td>
                         <td>{{ row['Opération'] }}</td>
-                        <td class="validation">{{ row['Validation'] }}</td>
+                        <td class="validation">
+                            {% set etapeKey = 'etape' ~ row['N°'] %} {# Génère "etape1", "etape2", etc. #}
+                            {% if score[etapeKey] is defined %}
+                                {% if score[etapeKey] == 1 %}
+                                    ✅
+                                {% elseif score[etapeKey] == -1 %}
+                                    ❌
+                                {% endif %}
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </table>
@@ -88,9 +97,10 @@
 
                     if (answer === "correct") {
                         showMessage("Correct", "green");
-                        updateEtape4();
+                        updateEtape4(1);
                     } else {
                         showMessage("Incorrect", "red");
+                        updateEtape4(-1);
                     }
 
                     // Afficher le bouton "Voir le bilan"
@@ -107,21 +117,24 @@
                 messageBox.style.fontWeight = "bold";
                 messageBox.style.marginTop = "10px";
                 messageBox.style.display = "block";
+
+                reloadTable(); // 🔄 Mettre à jour la colonne Validation après mise à jour du score
             }
 
             /* Mise à jour du score */
-            function updateEtape4() {
+            function updateEtape4(value) {
                 fetch("{{ path('update_score') }}", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "X-Requested-With": "XMLHttpRequest"
                     },
-                    body: JSON.stringify({ etape: "etape4" }) // Mise à jour de l'étape 4
+                    body: JSON.stringify({ etape: "etape4" , value: value}) // Mise à jour de l'étape 4
                 })
                     .then(response => response.json())
                     .then(data => {
                         console.log("Score mis à jour :", data.score);
+                        reloadTable(); // 🔄 Mettre à jour la colonne Validation après mise à jour du score
                     })
                     .catch(error => console.error("Erreur de mise à jour du score :", error));
             }

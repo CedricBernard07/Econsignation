@@ -32,7 +32,16 @@
                         <td>{{ row['N°'] }}</td>
                         <td>{{ row['Emplacement'] }}</td>
                         <td>{{ row['Opération'] }}</td>
-                        <td class="validation">{{ row['Validation'] }}</td>
+                        <td class="validation">
+                            {% set etapeKey = 'etape' ~ row['N°'] %} {# Génère "etape1", "etape2", etc. #}
+                            {% if score[etapeKey] is defined %}
+                                {% if score[etapeKey] == 1 %}
+                                    ✅
+                                {% elseif score[etapeKey] == -1 %}
+                                    ❌
+                                {% endif %}
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </table>
@@ -42,10 +51,6 @@
         <div id="panorama"></div>
     </div>
 
-
-
-
-    {#    <div id="panorama" style="width: 100%; height: 800px;"></div>#}
 
     <script>
         //POP UP NNI
@@ -105,7 +110,7 @@
                                 if (!isDragging) {
                                     event.stopPropagation();
                                     showMessage("Correct", "green");
-                                    updateScore('etape1');
+                                    updateScore('etape1',1);
                                 }
                                 // Appliquer la correction : bordure verte
                                 hotSpotDiv.style.border = "5px solid green"
@@ -122,20 +127,23 @@
                 messageBox.textContent = text;
                 messageBox.style.color = color;
                 nextButton.style.display = "inline-block"; // Afficher le bouton
+
+                reloadTable(); // 🔄 Mettre à jour la colonne Validation après mise à jour du score
             }
 
-            function updateScore(etape) {
+            function updateScore(etape, value) {
                 fetch("{{ path('update_score') }}", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "X-Requested-With": "XMLHttpRequest"
                     },
-                    body: JSON.stringify({ etape: etape })
+                    body: JSON.stringify({ etape: etape, value:value })
                 })
                     .then(response => response.json())
                     .then(data => {
                         console.log("Score mis à jour :", data.score);
+                        reloadTable(); // 🔄 Mettre à jour la colonne Validation après mise à jour du score
                     })
                     .catch(error => console.error("Erreur de mise à jour du score :", error));
             }
@@ -151,6 +159,7 @@
             document.getElementById("panorama").addEventListener("mouseup", function () {
                 if (!isDragging) {
                     showMessage("Incorrect", "red");
+                    updateScore('etape1',-1);
                     // Appliquer la correction : bordure rouge
                     let hotSpotDiv = document.querySelector(".hotspot-rect");
                     hotSpotDiv.style.border = "5px solid red"

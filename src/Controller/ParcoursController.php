@@ -37,6 +37,7 @@ class ParcoursController extends AbstractController
      * Page d'accueil du parcours - Réinitialisation du score
      */
     #[Route('/parcours', name: 'app_parcours')]
+    #[Route('/parcours/page1', name: 'app_parcours_page1')]
     public function parcours(): Response
     {
         $this->session->set('score', $this->getDefaultScore());
@@ -114,7 +115,7 @@ class ParcoursController extends AbstractController
         }
 
         // Mettre à jour le score
-        $score[$data['etape']] = 1;
+        $score[$data['etape']] = $data['value'];  //1 ou -1 selon succes ou echec transmis par le TWIG
         $this->session->set('score', $score);
 
         return new JsonResponse(['success' => true, 'score' => $score]);
@@ -143,11 +144,11 @@ class ParcoursController extends AbstractController
     private function getTableData(): array
     {
         return [
-            ['N°' => 1, 'Emplacement' => 'Transformateur', 'Opération' => 'Identifier', 'Validation' => '✔'],
-            ['N°' => 2, 'Emplacement' => 'Transformateur', 'Opération' => 'Choix des EPI', 'Validation' => '✔'],
-            ['N°' => 3, 'Emplacement' => 'Poste C', 'Opération' => 'Maintenance', 'Validation' => '✖'],
-            ['N°' => 4, 'Emplacement' => 'Poste D', 'Opération' => 'Réparation', 'Validation' => '✖'],
-            ['N°' => 5, 'Emplacement' => 'Poste E', 'Opération' => 'Vérification', 'Validation' => '✖'],
+            ['N°' => 1, 'Emplacement' => 'Transformateur', 'Opération' => 'Identifier', 'Validation' => ' '],
+            ['N°' => 2, 'Emplacement' => 'Transformateur', 'Opération' => 'Choix des EPI', 'Validation' => ' '],
+            ['N°' => 3, 'Emplacement' => 'Transformateur', 'Opération' => 'Mise a la terre', 'Validation' => ' '],
+            ['N°' => 4, 'Emplacement' => 'Transformateur', 'Opération' => 'Question générale', 'Validation' => ' '],
+            ['N°' => 5, 'Emplacement' => 'Salle Contrôle Commande', 'Opération' => 'Point de vigilance', 'Validation' => ' '],
         ];
     }
 
