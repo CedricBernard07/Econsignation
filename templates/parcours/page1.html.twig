@@ -87,13 +87,16 @@
 
         document.addEventListener("DOMContentLoaded", function () {
             let isDragging = false;
+            let attempted = false; // Bloquer après une seule tentative
+            let correctClick = false; // Vérifier si l'utilisateur a cliqué sur un hotspot valide
+
             let viewer = pannellum.viewer('panorama', {
                 "type": "equirectangular",
                 "panorama": "{{ asset('models/model.jpg') }}",
                 "autoLoad": true,
-                "yaw": 1.5,  // Ajuste la position horizontale du hotspot
-                "pitch": 3,  // Ajuste la position verticale du hotspot
-                "hfov": 100, // Angle de vue initial (fixé)
+                "yaw": 1.5,
+                "pitch": 3,
+                "hfov": 100,
                 "mouseZoom": false,
                 "disableZoom": true,
                 "showControls": false,
@@ -107,14 +110,18 @@
                         "createTooltipFunc": function(hotSpotDiv, args) {
                             hotSpotDiv.classList.add("hotspot-rect");
                             hotSpotDiv.style.pointerEvents = "auto";
+
                             hotSpotDiv.addEventListener("click", function(event) {
-                                if (!isDragging) {
+                                if (!isDragging && !attempted) {
                                     event.stopPropagation();
+                                    correctClick = true; // Marquer que l'utilisateur a bien cliqué sur le hotspot
+                                    attempted = true; // Bloquer après une seule tentative
+
+                                    console.log("Correct click enregistré !");
                                     showMessage("Correct", "green");
-                                    updateScore('etape1',1);
+                                    updateScore('etape1', 1);
+                                    hotSpotDiv.style.border = "5px solid green";
                                 }
-                                // Appliquer la correction : bordure verte
-                                hotSpotDiv.style.border = "5px solid green"
                             });
                         }
                     }
@@ -127,9 +134,9 @@
 
                 messageBox.textContent = text;
                 messageBox.style.color = color;
-                nextButton.style.display = "inline-block"; // Afficher le bouton
+                nextButton.style.display = "inline-block";
 
-                reloadTable(); // 🔄 Mettre à jour la colonne Validation après mise à jour du score
+                reloadTable(); // Met à jour la validation
             }
 
             function updateScore(etape, value) {
@@ -139,12 +146,12 @@
                         "Content-Type": "application/json",
                         "X-Requested-With": "XMLHttpRequest"
                     },
-                    body: JSON.stringify({ etape: etape, value:value })
+                    body: JSON.stringify({ etape: etape, value: value })
                 })
                     .then(response => response.json())
                     .then(data => {
                         console.log("Score mis à jour :", data.score);
-                        reloadTable(); // 🔄 Mettre à jour la colonne Validation après mise à jour du score
+                        reloadTable();
                     })
                     .catch(error => console.error("Erreur de mise à jour du score :", error));
             }
@@ -158,15 +165,21 @@
             });
 
             document.getElementById("panorama").addEventListener("mouseup", function () {
-                if (!isDragging) {
-                    showMessage("Incorrect", "red");
-                    updateScore('etape1',-1);
-                    // Appliquer la correction : bordure rouge
-                    let hotSpotDiv = document.querySelector(".hotspot-rect");
-                    hotSpotDiv.style.border = "5px solid red"
-                }
+                // Attendre une petite période avant de vérifier si attempted est toujours false
+                setTimeout(() => {
+                    if (!isDragging && !attempted && !correctClick) {
+                        attempted = true; // Empêche toute nouvelle tentative
+                        console.log("Mauvais clic détecté !");
+                        showMessage("Incorrect", "red");
+                        updateScore('etape1', -1);
+
+                        let hotSpotDiv = document.querySelector(".hotspot-rect");
+                        if (hotSpotDiv) hotSpotDiv.style.border = "5px solid red";
+                    }
+                }, 100); // Laisser un temps de 100ms pour que l'éventuel clic sur le hotspot soit pris en compte
             });
         });
+
     </script>
 
     <style>
