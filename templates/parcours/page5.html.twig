@@ -14,6 +14,8 @@
         <span id="message-box"></span>
         <img id="response-image" src="{{ asset('images/DJbaché.jpg') }}" class="overlay-image" style="display: none;">
         <a href="{{ path('app_bilan') }}" id="next-button" class="next-button" style="display: none;">Voir le bilan</a>
+        <!-- Bouton "Pas de problème sur cette image" -->
+        <button id="no-problem-button" class="no-problem">Pas de problème sur cette image</button>
     </div>
 
     <div class="container">
@@ -110,7 +112,7 @@
                 setTimeout(() => {
                     if (!isDragging && !attempted && !correctClick) {
                         attempted = true;
-                        showPrompt(); // Ouvre le champ de saisie même si clic incorrect
+                        showPrompt();
                     }
                 }, 100);
             });
@@ -120,25 +122,39 @@
                 textInputContainer.style.display = "block";
 
                 document.getElementById("submit-button").onclick = function () {
-                    let userInput = document.getElementById("user-input").value.trim();
-                    let feedbackFrame = document.getElementById("feedback-frame");
-
-                    attempted = true;
-                    textInputContainer.style.display = "none"; // Cacher le champ de texte
-
-                    if (correctClick) {
-                        showMessage("Correct", "green");
-                        updateEtape5(1);
-                        feedbackFrame.style.border = "5px solid green"; // Affiche en vert
-                    } else {
-                        showMessage("Incorrect", "red");
-                        updateEtape5(-1);
-                        feedbackFrame.style.border = "5px solid red"; // Affiche en rouge
-                    }
-
-                    feedbackFrame.style.display = "block";
-                    document.getElementById("next-button").style.display = "inline-block";
+                    validateResponse(correctClick);
                 };
+            }
+
+            document.getElementById("no-problem-button").onclick = function () {
+                if (!attempted) {
+                    attempted = true;
+                    validateResponse(false); // Mauvaise réponse forcée
+                }
+            };
+
+            function validateResponse(isCorrect) {
+                let textInputContainer = document.getElementById("text-input-container");
+                let feedbackFrame = document.getElementById("feedback-frame");
+                let messageBox = document.getElementById("message-box");
+                let noProblemButton = document.getElementById("no-problem-button");
+
+                attempted = true;
+                textInputContainer.style.display = "none"; // Cacher le champ de texte
+                noProblemButton.style.display = "none"; // Cacher le bouton après validation
+
+                if (isCorrect) {
+                    showMessage("Correct", "green");
+                    updateEtape5(1);
+                    feedbackFrame.style.border = "5px solid green"; // Affiche en vert
+                } else {
+                    showMessage("Incorrect", "red");
+                    updateEtape5(-1);
+                    feedbackFrame.style.border = "5px solid red"; // Affiche en rouge
+                }
+
+                feedbackFrame.style.display = "block";
+                document.getElementById("next-button").style.display = "inline-block";
             }
 
             function showMessage(text, color) {
@@ -165,7 +181,7 @@
                     .then(response => response.json())
                     .then(data => {
                         console.log("Score mis à jour :", data.score);
-                        reloadTable(); // Met à jour la validation
+                        reloadTable();  // Met à jour la validation
                     })
                     .catch(error => console.error("Erreur de mise à jour du score :", error));
             }
@@ -203,28 +219,31 @@
             cursor: pointer;
         }
 
-        /* Rectangle correct ou incorrect */
+        /* Bouton "Pas de problème sur cette image" */
+        .no-problem {
+            display: block;
+            margin: 15px auto;
+            padding: 12px 18px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .no-problem:hover {
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
         .hotspot-rect {
             position: absolute;
             width: 100px;
             height: 100px;
             background: transparent;
-            border: 3px solid transparent; /* Invisible au départ */
+            border: 3px solid transparent;
             pointer-events: none;
-        }
-
-        /* Image de réponse */
-        .overlay-image {
-            position: absolute;
-            top: 35%;
-            left: 25%;
-            width: 500px;
-            z-index: 100;
-            display: none;
-            border: 2px solid black;
-            background-color: white;
-            padding: 5px;
-            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
         }
     </style>
 
