@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/pannellum.css') }}">
 
     <body>
-    <h1>Étape 5 : Séléctionner le point de vigilance à controler</h1>
+    <h1>Étape 5 : Sélectionner le point de vigilance à contrôler</h1>
 
     <div id="response-container">
         <span id="message-box"></span>
@@ -16,9 +16,7 @@
         <a href="{{ path('app_bilan') }}" id="next-button" class="next-button" style="display: none;">Voir le bilan</a>
     </div>
 
-    {#    tableau représenatnt la fiche de consignation#}
     <div class="container">
-        <!-- Tableau des opérations -->
         <div class="parcours-table-container">
             <div class="parcours-table-title">Suivi de la consignation</div>
             <table class="parcours-table">
@@ -34,7 +32,7 @@
                         <td>{{ row['Emplacement'] }}</td>
                         <td>{{ row['Opération'] }}</td>
                         <td class="validation">
-                            {% set etapeKey = 'etape' ~ row['N°'] %} {# Génère "etape1", "etape2", etc. #}
+                            {% set etapeKey = 'etape' ~ row['N°'] %}
                             {% if score[etapeKey] is defined %}
                                 {% if score[etapeKey] == 1 %}
                                     ✅
@@ -50,61 +48,101 @@
 
         <!-- Image panoramique -->
         <div id="panorama"></div>
+
+        <!-- Champ de texte (invisible au départ) -->
+        <div id="text-input-container">
+            <p>Indiquer le nom de la vigilance :</p>
+            <input type="text" id="user-input" placeholder="Votre réponse ici...">
+            <button id="submit-button">Valider</button>
+        </div>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            let attemptDone = false; // Bloquer après un essai
+            let isDragging = false;
+            let attempted = false;
+            let correctClick = false; // Vérifier si l'utilisateur a cliqué sur un hotspot valide
 
             let viewer = pannellum.viewer('panorama', {
                 "type": "equirectangular",
-                "panorama": "{{ asset('models/SalleCC.jpg') }}",
+                "panorama": "{{ asset('models/ArlodEntree.jpg') }}",
                 "autoLoad": true,
-                "yaw": 0,
-                "pitch": 0,
+                "yaw": -175,
+                "pitch": -8,
                 "hfov": 150,
                 "mouseZoom": false,
                 "disableZoom": true,
                 "showControls": false,
                 "keyboardZoom": false,
                 "hotSpots": [
-                    { "pitch": 11, "yaw": -8, "type": "custom", "cssClass": "hotspot-frame", "id": "frame1", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "frame1", correct: true }},
-                    { "pitch": -20, "yaw": -20, "type": "custom", "cssClass": "hotspot-frame", "id": "frame2", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "frame2", correct: false }},
-                    { "pitch": 14, "yaw": 37, "type": "custom", "cssClass": "hotspot-frame", "id": "frame3", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "frame3", correct: false }},
-                    { "pitch": -11, "yaw": 9, "type": "custom", "cssClass": "hotspot-frame", "id": "frame4", "createTooltipFunc": createHotspot, "createTooltipArgs": { id: "frame4", correct: false }}
+                    {
+                        "pitch": -7,
+                        "yaw": -173,
+                        "type": "custom",
+                        "cssClass": "hotspot-rect",
+                        "createTooltipFunc": function(hotSpotDiv, args) {
+                            hotSpotDiv.classList.add("hotspot-rect");
+                            hotSpotDiv.style.pointerEvents = "auto";
+                            hotSpotDiv.setAttribute("id", "feedback-frame");
+
+                            hotSpotDiv.addEventListener("click", function (event) {
+                                if (!isDragging && !attempted) {
+                                    event.stopPropagation();
+                                    correctClick = true; // Marque que l'utilisateur a bien cliqué sur le hotspot
+                                    showPrompt(); // Ouvre le champ de saisie
+                                }
+                            });
+                        }
+                    }
                 ]
             });
 
-            /* Fonction pour gérer les clics sur les cadres */
-            function createHotspot(hotSpotDiv, args) {
-                hotSpotDiv.setAttribute("id", args.id);
+            // Gestion du clic utilisateur en dehors du hotspot
+            document.getElementById("panorama").addEventListener("mousedown", function () {
+                isDragging = false;
+            });
 
-                hotSpotDiv.addEventListener("click", function () {
-                    if (attemptDone) return; // Bloquer après un essai
+            document.getElementById("panorama").addEventListener("mousemove", function () {
+                isDragging = true;
+            });
 
-                    let frameId = args.id;
+            document.getElementById("panorama").addEventListener("mouseup", function () {
+                setTimeout(() => {
+                    if (!isDragging && !attempted && !correctClick) {
+                        attempted = true;
+                        showPrompt(); // Ouvre le champ de saisie même si clic incorrect
+                    }
+                }, 100);
+            });
 
-                    if (args.correct) {
+            function showPrompt() {
+                let textInputContainer = document.getElementById("text-input-container");
+                textInputContainer.style.display = "block";
+
+                document.getElementById("submit-button").onclick = function () {
+                    let userInput = document.getElementById("user-input").value.trim();
+                    let feedbackFrame = document.getElementById("feedback-frame");
+
+                    attempted = true;
+                    textInputContainer.style.display = "none"; // Cacher le champ de texte
+
+                    if (correctClick) {
                         showMessage("Correct", "green");
                         updateEtape5(1);
-                        hotSpotDiv.classList.add("correct-frame"); // Bordure verte
+                        feedbackFrame.style.border = "5px solid green"; // Affiche en vert
                     } else {
                         showMessage("Incorrect", "red");
-                        hotSpotDiv.classList.add("incorrect-frame"); // Bordure rouge
                         updateEtape5(-1);
+                        feedbackFrame.style.border = "5px solid red"; // Affiche en rouge
                     }
 
-                    highlightCorrectFrame(); // Afficher la bonne réponse en vert après un clic
-                    attemptDone = true; // Bloquer les clics supplémentaires
-                    document.getElementById("next-button").style.display = "inline-block"; // Afficher le bouton suivant
-                });
+                    feedbackFrame.style.display = "block";
+                    document.getElementById("next-button").style.display = "inline-block";
+                };
             }
 
-            /* Fonction pour afficher le message */
             function showMessage(text, color) {
                 let messageBox = document.getElementById("message-box");
-                let responseImage = document.getElementById("response-image");
-
                 messageBox.textContent = text;
                 messageBox.style.color = color;
                 messageBox.style.fontSize = "30px";
@@ -112,25 +150,9 @@
                 messageBox.style.marginTop = "10px";
                 messageBox.style.display = "block";
 
-                responseImage.style.display = "block"; // Afficher l'image
-
-                reloadTable(); // 🔄 Mettre à jour la colonne Validation après mise à jour du score
+                reloadTable(); // Met à jour la validation
             }
 
-            /* Met en vert la bonne réponse après un clic sur n'importe quelle case */
-            function highlightCorrectFrame() {
-                setTimeout(() => { // Petit délai pour s'assurer que l'élément est bien disponible
-                    let correctFrame = document.querySelector('#frame1');
-                    if (correctFrame) {
-                        console.log("Mise en évidence du bon cadre");
-                        correctFrame.classList.add("correct-frame");
-                    } else {
-                        console.error("Le cadre correct n'a pas été trouvé !");
-                    }
-                }, 100);
-            }
-
-            /* Mise à jour du score si la réponse est correcte */
             function updateEtape5(value) {
                 fetch("{{ path('update_score') }}", {
                     method: "POST",
@@ -138,48 +160,65 @@
                         "Content-Type": "application/json",
                         "X-Requested-With": "XMLHttpRequest"
                     },
-                    body: JSON.stringify({ etape: "etape5" , value:value}) // Mise à jour de l'étape 5
+                    body: JSON.stringify({ etape: "etape5", value: value })
                 })
                     .then(response => response.json())
                     .then(data => {
                         console.log("Score mis à jour :", data.score);
-                        reloadTable(); // 🔄 Mettre à jour la colonne Validation après mise à jour du score
+                        reloadTable(); // Met à jour la validation
                     })
                     .catch(error => console.error("Erreur de mise à jour du score :", error));
             }
         });
     </script>
 
-    </body>
-
     <style>
-        /* Style des cadres */
-        .hotspot-frame {
-            width: 100px;
-            height: 100px;
-            border: 3px solid white;
+        /* Champ de texte discret */
+        #text-input-container {
+            display: none;
             position: absolute;
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            pointer-events: auto;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        #text-input-container p {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        #text-input-container input {
+            width: 200px;
+            padding: 5px;
+            margin-right: 10px;
+        }
+
+        #text-input-container button {
+            padding: 5px 10px;
             cursor: pointer;
         }
 
-        /* ✅ Bordure verte pour la bonne réponse */
-        .correct-frame {
-            border: 5px solid green !important;
+        /* Rectangle correct ou incorrect */
+        .hotspot-rect {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: transparent;
+            border: 3px solid transparent; /* Invisible au départ */
+            pointer-events: none;
         }
 
-        /* ❌ Bordure rouge pour les mauvaises réponses */
-        .incorrect-frame {
-            border: 5px solid red !important;
-        }
-
-        /* Superposition de l'image à gauche sur le panorama */
+        /* Image de réponse */
         .overlay-image {
             position: absolute;
-            top: 35%;    /*Positionnement vertical, augmenter pour décaler vers le bas */
-            left: 25%;  /* Positionnement horizontal, augmenter pour décaler vers la droite */
-            width: 500px;  /* Largeur de l'image */
+            top: 35%;
+            left: 25%;
+            width: 500px;
             z-index: 100;
             display: none;
             border: 2px solid black;
@@ -188,5 +227,7 @@
             box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
         }
     </style>
+
+    </body>
 
 {% endblock %}

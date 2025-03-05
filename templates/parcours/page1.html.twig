@@ -151,7 +151,7 @@
                     .then(response => response.json())
                     .then(data => {
                         console.log("Score mis à jour :", data.score);
-                        reloadTable();
+                        reloadTable(); // Met à jour la validation
                     })
                     .catch(error => console.error("Erreur de mise à jour du score :", error));
             }
